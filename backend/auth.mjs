@@ -113,21 +113,43 @@ async function rpc(env, method, body) {
   return data;
 }
 export function mountAuthRoutes(app, db, env, wrap, authenticate) {
-  app.get('/api/auth/start',wrap(async(req,res)=>{
+  const configured=()=>{
     secret(env);
     if (!env.MANUS_OAUTH_PORTAL_URL || !env.MANUS_OAUTH_API_URL) fail(503,'auth_not_configured','تسجيل الدخول غير مهيأ');
-    const origin=validateOrigin(req.query.origin,env);
-    if (req.query.target!==undefined && !['app','admin'].includes(req.query.target)) fail(400,'invalid_target','وجهة غير صالحة');
+  };
+  const targetFor=value=>{
+    if (value!==undefined && !['app','admin'].includes(value)) fail(400,'invalid_target','وجهة غير صالحة');
+    return value || 'app';
+  };
+  const nativeOrigin=()=>env.TASWIQAT_AUTH_ORIGIN ? authOrigin(env) : DEFAULT_AUTH_ORIGIN;
+  const begin=async(req,res,origin)=>{
+    configured();
+    const target=targetFor(req.query.target);
     const nonce=randomBytes(32).toString('base64url');
     const redirectUri=`${origin}/api/auth/callback`;
-    const target=req.query.target || 'app';
     const state=Buffer.from(JSON.stringify({redirectUri,nonce})).toString('base64');
     const cookie=await new SignJWT({appId:env.MANUS_PROJECT_ID,nonce,redirectUri,origin,target,kind:'oauth_state'}).setProtectedHeader({alg:'HS256'}).setIssuedAt().setExpirationTime('10m').sign(secret(env));
     await db.query('INSERT INTO taswiqat_oauth_nonces(nonce_hash,expires_at) VALUES(?,DATE_ADD(UTC_TIMESTAMP(3),INTERVAL 10 MINUTE))',[digest(nonce)]);
     res.cookie(STATE_COOKIE,cookie,{...cookieOptions(origin,env),maxAge:600000});
     const url=new URL('/app-auth',env.MANUS_OAUTH_PORTAL_URL);
     url.search=new URLSearchParams({appId:env.MANUS_PROJECT_ID,redirectUri,state,responseType:'code'}).toString();
-    res.json({url:url.toString()});
+    return url.toString();
+  };
+  app.get('/api/auth/start',wrap(async(req,res)=>{
+    configured();
+    res.json({url:await begin(req,res,validateOrigin(req.query.origin,env))});
+  }));
+  app.get('/api/auth/login',wrap(async(req,res)=>{
+    configured();
+    const target=targetFor(req.query.target);
+    // Hop to the fixed public origin before setting the host-scoped state cookie.
+    // This also keeps entry from Preview/aliases independent of browser scripts.
+    res.set('Referrer-Policy','no-referrer');
+    res.redirect(302,`${nativeOrigin()}/api/auth/login/start?${new URLSearchParams({target})}`);
+  }));
+  app.get('/api/auth/login/start',wrap(async(req,res)=>{
+    res.set('Referrer-Policy','no-referrer');
+    res.redirect(302,await begin(req,res,nativeOrigin()));
   }));
   app.get('/api/auth/callback',wrap(async(req,res)=>{
     let bound,state;
