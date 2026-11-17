@@ -1,0 +1,22 @@
+/* Session wiring only; preserve the existing purple/orange identity. */
+.session-view { min-height: 100vh; display: grid; place-items: center; padding: 32px 18px; background: var(--bg, #f6f4ff); }
+.session-card { width: min(100%, 580px); padding: clamp(24px, 5vw, 44px); border: 1px solid var(--border, #e3ddfa); border-radius: 24px; background: var(--surface, #fff); box-shadow: 0 18px 60px #442ad912; }
+.session-card h1 { margin: 20px 0 12px; font-size: clamp(24px, 5vw, 32px); }
+.session-card p { color: var(--muted, #756c90); line-height: 1.9; font-size: 14px; }
+.session-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
+.session-message { margin-top: 16px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.session-demo-note { padding-top: 20px; margin-top: 20px; border-top: 1px solid var(--line, #e3ddfa); }
+.session-workspace-list { display: grid; gap: 12px; margin-top: 20px; }
+.session-workspace-list .btn { justify-content: space-between; text-align: right; }
+.session-demo-banner { background: #ff6b3518; border: 1px solid #ff6b35; color: var(--text, #352461); font-weight: 700; }
+.session-demo-entry { margin-top: 12px; }
+.workspace-select { width: 100%; margin-top: 12px; min-height: 38px; color: inherit; background: #ffffff0a; border: 1px solid #ffffff30; border-radius: 9px; padding: 8px; font: inherit; font-size: 12px; }
+.workspace-select option { background: #2a195a; color: white; }
+.session-user-name { max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; }
+.session-invitation-link { width: 100%; direction: ltr; text-align: left; }
+.app-banner .btn { margin-inline-start: 10px; }
+body[data-saving="true"] .app-main button, body[data-saving="true"] .dialog button, body[data-saving="true"] .dialog input, body[data-saving="true"] .dialog select { pointer-events: none; opacity: .65; }
+body[data-saving="true"] .app-topbar::after { content: "جارٍ الحفظ على الخادم…"; color: var(--muted); font-size: 11px; }
+body.dark .session-card { background: var(--surface, #241a45); }
+@media (max-width: 600px) { .session-actions .btn { flex: 1 1 100%; } .session-user-name { max-width: 85px; } .top-actions { gap: 7px; flex-wrap: wrap; justify-content: flex-end; } #sessionMode { font-size: 10px; } }
+[hidden] { display: none !important; }

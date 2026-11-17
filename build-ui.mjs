@@ -20,11 +20,15 @@ const html = `<!DOCTYPE html>
   <link rel="stylesheet" href="assets/styles.css">
   <link rel="stylesheet" href="assets/landing.css">
   <link rel="stylesheet" href="assets/pulse.css">
+  <link rel="stylesheet" href="assets/session.css">
 </head>
 <body>
 ${landing}
 ${app}
+  <script src="assets/deployment.js"></script>
+  <script src="assets/client-api.js"></script>
   <script src="assets/app.js"></script>
+  <script src="assets/site-settings.js"></script>
 </body>
 </html>
 `;
@@ -38,4 +42,5 @@ await cp(
   path.join(root, "manus-routes.json"),
   path.join(root, "dist/manus-routes.json"),
 );
-console.log("UI assembled: index.html and dist/ (no backend files changed)");
+await cp(path.join(root, "admin.html"), path.join(root, "dist/admin.html"));
+console.log("Taswiqat customer and operator interfaces assembled: index.html and dist/");

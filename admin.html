@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta
+      name="description"
+      content="لوحة الشركة المشغلة لتسويقات. يتطلب الوصول جلسة إدارة يتحقق منها الخادم."
+    />
+    <title>إدارة الشركة المشغلة | تسويقات</title>
+    <link rel="icon" type="image/svg+xml" href="assets/logo.svg" />
+    <link rel="stylesheet" href="assets/styles.css" />
+    <link rel="stylesheet" href="assets/pulse.css" />
+    <link rel="stylesheet" href="assets/admin.css" />
+    <script src="assets/deployment.js" defer></script>
+    <script src="assets/admin.js" defer></script>
+  </head>
+  <body class="admin-ui">
+    <a class="admin-skip" href="#adminMain">تجاوز القائمة إلى المحتوى</a>
+    <main id="adminGate" class="admin-gate" aria-labelledby="adminGateTitle">
+      <section class="card admin-gate-card">
+        <a class="brand" href="index.html"
+          ><span class="brand-mark" aria-hidden="true">ت</span
+          ><span>تسويقات</span></a
+        >
+        <div class="eyebrow">الشركة المشغلة</div>
+        <h1 id="adminGateTitle">التحقق من جلسة الإدارة</h1>
+        <p id="adminGateMessage" role="status">
+          جارٍ التحقق من الجلسة عبر الخادم. لن تُحمّل سجلات الإدارة قبل التحقق
+          من الصلاحية.
+        </p>
+        <p id="adminGateError" class="form-error" role="alert"></p>
+        <div class="admin-gate-actions">
+          <button
+            id="adminLoginButton"
+            class="btn primary"
+            type="button"
+            onclick="startAdminLogin()"
+            hidden
+          >
+            تسجيل دخول الإدارة
+          </button>
+          <button
+            class="btn ghost"
+            type="button"
+            onclick="bootstrapAdminSession()"
+          >
+            إعادة التحقق من الخادم
+          </button>
+          <button
+            id="adminGateLogout"
+            class="btn ghost"
+            type="button"
+            onclick="logoutAdminSession()"
+            hidden
+          >
+            تسجيل الخروج من الجلسة الحالية
+          </button>
+        </div>
+        <div class="admin-demo-entry">
+          <strong>استكشاف الواجهة دون حساب؟</strong>
+          <p>
+            معاينة منفصلة غير محمية، بلا بيانات افتراضية أو هوية مصادقة. لا
+            تُفتح تلقائيًا عند فشل الخادم.
+          </p>
+          <button
+            class="btn small ghost"
+            type="button"
+            onclick="startAdminDemo()"
+          >
+            فتح المعاينة المحلية غير المحمية
+          </button>
+          <div class="notice">
+            معاينة إدارة غير محمية — لا تدخل بيانات عملاء حقيقية. الحفظ محلي على
+            هذا المتصفح.
+          </div>
+        </div>
+        <a class="admin-gate-back" href="index.html"
+          >العودة إلى موقع تسويقات ←</a
+        >
+      </section>
+    </main>
+    <div id="adminShell" class="app-shell" hidden>
+      <aside
+        id="adminSidebar"
+        class="sidebar"
+        aria-label="إدارة الشركة المشغلة"
+      >
+        <div class="admin-sidebar-head">
+          <a
+            class="brand"
+            href="admin.html#overview"
+            aria-label="تسويقات، نظرة عامة"
+            ><span class="brand-mark" aria-hidden="true">ت</span
+            ><span>تسويقات</span></a
+          >
+          <button
+            class="icon-btn mobile-menu admin-menu-close"
+            type="button"
+            onclick="toggleAdminMenu(false)"
+            aria-label="إغلاق القائمة"
+          >
+            ×
+          </button>
+        </div>
+        <div class="workspace-box">
+          <div class="workspace-label">الشركة المشغلة</div>
+          <strong id="adminWorkspaceTitle">إدارة الشركة المشغلة</strong
+          ><small id="adminWorkspaceSubtitle">الجلسة من الخادم</small>
+        </div>
+        <nav aria-label="أقسام الإدارة">
+          <div class="nav-label">الإدارة اليومية</div>
+          <div class="nav-list" id="adminNav">
+            <a class="nav-link" href="#overview" data-view="overview"
+              ><span class="admin-nav-icon" aria-hidden="true">◈</span>نظرة
+              عامة</a
+            >
+            <a class="nav-link" href="#workspaces" data-view="workspaces"
+              ><span class="admin-nav-icon" aria-hidden="true">▦</span>أنشطة
+              العملاء</a
+            >
+            <a class="nav-link" href="#users" data-view="users"
+              ><span class="admin-nav-icon" aria-hidden="true">◎</span>سجلات
+              المستخدمين</a
+            >
+            <a class="nav-link" href="#subscriptions" data-view="subscriptions"
+              ><span class="admin-nav-icon" aria-hidden="true">▤</span>تتبّع
+              الاشتراكات</a
+            >
+            <a class="nav-link" href="#plans" data-view="plans"
+              ><span class="admin-nav-icon" aria-hidden="true">◇</span>الباقات
+              المقترحة</a
+            >
+            <a class="nav-link" href="#connections" data-view="connections"
+              ><span class="admin-nav-icon" aria-hidden="true">↔</span>جرد
+              القنوات</a
+            >
+            <a class="nav-link" href="#operations" data-view="operations"
+              ><span class="admin-nav-icon" aria-hidden="true">≋</span>عمليات
+              النشر</a
+            >
+            <a class="nav-link" href="#tickets" data-view="tickets"
+              ><span class="admin-nav-icon" aria-hidden="true">▱</span>تذاكر
+              الدعم</a
+            >
+            <a class="nav-link" href="#audit" data-view="audit"
+              ><span class="admin-nav-icon" aria-hidden="true">◷</span>سجل
+              التغييرات</a
+            >
+          </div>
+          <div class="nav-label">إعدادات الإدارة</div>
+          <div class="nav-list">
+            <a class="nav-link" href="#site" data-view="site"
+              ><span class="admin-nav-icon" aria-hidden="true">▧</span>محتوى
+              الموقع</a
+            >
+            <a class="nav-link" href="#settings" data-view="settings"
+              ><span class="admin-nav-icon" aria-hidden="true">⚙</span
+              >الإعدادات والنسخ</a
+            >
+          </div>
+        </nav>
+        <div class="sidebar-foot">
+          <a class="btn ghost admin-customer-link" href="index.html"
+            >عرض موقع العميل <span aria-hidden="true">↗</span></a
+          ><small id="adminSideNote"
+            >الوصول والحفظ يخضعان لصلاحيات الخادم.</small
+          >
+        </div>
+      </aside>
+      <button
+        id="adminMenuOverlay"
+        class="menu-overlay"
+        type="button"
+        onclick="toggleAdminMenu(false)"
+        tabindex="-1"
+        aria-label="إغلاق القائمة"
+      ></button>
+      <div class="app-body">
+        <header class="app-topbar">
+          <div class="row">
+            <button
+              id="adminMenuButton"
+              class="icon-btn mobile-menu"
+              type="button"
+              onclick="toggleAdminMenu()"
+              aria-controls="adminSidebar"
+              aria-expanded="false"
+              aria-label="فتح قائمة الإدارة"
+            >
+              ☰
+            </button>
+            <div class="crumb">
+              الشركة المشغلة <strong id="adminCrumb">نظرة عامة</strong>
+            </div>
+          </div>
+          <div class="top-actions">
+            <span id="adminModeBadge" class="badge gold">بيانات الخادم</span
+            ><button
+              id="adminThemeButton"
+              class="btn small ghost"
+              type="button"
+              onclick="toggleAdminTheme()"
+            >
+              الوضع الداكن</button
+            ><button
+              id="adminLogoutButton"
+              class="btn small ghost"
+              type="button"
+              onclick="logoutAdminSession()"
+            >
+              تسجيل الخروج
+            </button>
+          </div>
+        </header>
+        <div id="adminSafety" class="admin-safety" role="note"></div>
+        <div
+          id="adminSavingStatus"
+          class="admin-saving-status"
+          role="status"
+          aria-live="polite"
+          hidden
+        >
+          جارٍ انتظار تأكيد الخادم…
+        </div>
+        <div
+          id="adminStorageNotice"
+          class="notice error admin-storage-notice"
+          role="alert"
+          hidden
+        ></div>
+        <main
+          id="adminMain"
+          class="app-main"
+          tabindex="-1"
+          aria-labelledby="adminPageTitle"
+        >
+          <div class="page-title admin-page-head">
+            <div>
+              <div class="eyebrow">تسويقات / إدارة المشغّل</div>
+              <h1 id="adminPageTitle">نظرة عامة</h1>
+              <p id="adminPageDescription"></p>
+            </div>
+            <div id="adminPageActions" class="quick-actions"></div>
+          </div>
+          <section
+            id="adminView"
+            class="stack"
+            aria-label="محتوى القسم"
+          ></section>
+        </main>
+      </div>
+    </div>
+    <dialog
+      id="adminDialog"
+      class="dialog admin-dialog"
+      aria-labelledby="adminDialogTitle"
+      aria-describedby="adminDialogDescription"
+    >
+      <div class="dialog-head">
+        <h2 id="adminDialogTitle">تحرير سجل</h2>
+        <button
+          class="icon-btn"
+          type="button"
+          onclick="closeAdminDialog()"
+          aria-label="إغلاق النموذج"
+        >
+          ×
+        </button>
+      </div>
+      <p id="adminDialogDescription">
+        الحفظ لا يعني إرسال دعوة أو تحصيل دفعة أو نجاح نشر.
+      </p>
+      <form id="adminRecordForm" onsubmit="submitAdminRecord(event)">
+        <div id="adminDialogFields"></div>
+        <p id="adminFormError" class="form-error" role="alert"></p>
+        <div class="dialog-actions">
+          <button id="adminSaveButton" class="btn primary" type="submit">
+            حفظ السجل</button
+          ><button class="btn ghost" type="button" onclick="closeAdminDialog()">
+            إلغاء
+          </button>
+        </div>
+      </form>
+    </dialog>
+    <div
+      id="adminToast"
+      class="toast"
+      role="status"
+      aria-live="polite"
+      hidden
+    ></div>
+    <noscript
+      ><div class="notice error admin-noscript">
+        تحتاج لوحة الإدارة إلى JavaScript للتحقق من الجلسة. لا تُحمّل بيانات
+        الإدارة دون التحقق من الخادم.
+      </div></noscript
+    >
+  </body>
+</html>

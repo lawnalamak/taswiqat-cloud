@@ -1,3 +1,6 @@
+<section id="sessionView" class="session-view" dir="rtl" lang="ar" hidden aria-label="الدخول إلى تسويقات">
+  <div id="sessionPanel" class="session-card" aria-live="polite"></div>
+</section>
 <div id="appView" hidden>
   <div class="menu-overlay" onclick="toggleMenu(false)"></div>
   <div class="app-shell">
@@ -10,17 +13,20 @@
       <div class="workspace-box">
         <strong id="workspaceName">نشاطك التجاري</strong
         ><small id="workspaceType">كل قنواتك في مكان واحد</small>
+        <label class="hidden" for="workspaceSelect">اختيار مساحة العمل</label>
+        <select id="workspaceSelect" class="workspace-select" onchange="switchWorkspace(this.value)" hidden></select>
       </div>
       <button class="btn primary" onclick="newPost()">+ إنشاء منشور</button>
       <div class="nav-label">إدارة التسويق</div>
       <nav class="nav-list" id="primaryNav"></nav>
       <div class="sidebar-foot">
+        <button class="btn ghost" onclick="newTicket()">طلب دعم لمساحة العمل</button>
         <button
           class="btn ghost"
-          id="switchRoleButton"
-          onclick="openEmployee()"
+          id="sessionActionButton"
+          onclick="sessionAction()"
         >
-          استكشاف تجربة الموظف
+          تسجيل الخروج
         </button>
         <button class="btn ghost" onclick="showLanding()">
           العودة إلى الموقع التعريفي
@@ -47,15 +53,16 @@
           </div>
         </div>
         <div class="top-actions">
-          <span class="badge gold">معاينة الواجهات</span
+          <span class="badge gold" id="sessionMode">مساحة عمل حقيقية</span
           ><button
             class="icon-btn"
             aria-label="تبديل المظهر"
             onclick="toggleTheme()"
           >
             ◐</button
+          ><span class="session-user-name" id="sessionUserName"></span
           ><span class="role-name muted" id="roleName" style="font-size: 12px"
-            >صاحب النشاط</span
+            >عضو مساحة العمل</span
           ><span class="avatar" id="userAvatar">ت</span>
         </div>
       </header>
@@ -71,9 +78,8 @@
     </button>
   </div>
   <h2 id="setupTitle">ابدأ بنشاطك، ثم اختر قنواتك</h2>
-  <p>
-    تسويقات يتكيّف مع عملك، مهما كان مجالك. تُحفظ هذه المعلومات على هذا المتصفح
-    فقط في نسخة الواجهات.
+  <p id="setupDescription">
+    أنشئ مساحة عمل مرتبطة بحسابك الحقيقي. اختيار القنوات لا يربط الحسابات ولا يفعّل النشر أو الدفع.
   </p>
   <form id="setupForm" onsubmit="saveSetup(event)">
     <div class="two-cols">

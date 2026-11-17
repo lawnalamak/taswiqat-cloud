@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="assets/styles.css">
   <link rel="stylesheet" href="assets/landing.css">
   <link rel="stylesheet" href="assets/pulse.css">
+  <link rel="stylesheet" href="assets/session.css">
 </head>
 <body>
 <div id="landingView" class="landing" dir="rtl" lang="ar">
@@ -72,12 +73,12 @@
               type="button"
               onclick="openApp('overview')"
             >
-              استكشف لوحة العمل
+              افتح مساحة العمل
             </button>
           </div>
           <p class="landing-hero-note">
-            استكشاف واجهات المنتج، دون تسجيل دخول أو شراء. الربط الفعلي مع
-            المنصات لم يجهز بعد.
+            احفظ عمل نشاطك بعد تسجيل الدخول. ربط المنصات والنشر الخارجي قيد
+            التجهيز، ولا تُحصّل هذه الصفحة أي مبلغ.
           </p>
         </div>
 
@@ -317,7 +318,7 @@
           <p>
             النشر الاجتماعي، رسائل واتساب، وإعلانات وقياس منتجات قوقل ليست
             الوظيفة نفسها. التنفيذ الفعلي لكل وظيفة يحتاج ربطًا منفصلًا واعتماد
-            الصلاحيات؛ هذه النسخة لعرض الواجهات ومسارات العمل.
+            الصلاحيات. يمكنك الآن تنظيم العمل وحفظه؛ الإرسال الخارجي ينتظر اكتمال التكاملات.
           </p>
         </div>
       </div>
@@ -335,8 +336,8 @@
             <h2 id="landingFeaturesTitle">ابدأ بنشاطك.<br />ثم ابنِ خطتك.</h2>
           </div>
           <p>
-            رحلة إعداد من ثلاث خطوات تساعدك على فهم مساحة العمل. لا تتطلب هذه
-            الجولة حسابًا فعليًا على أي منصة.
+            سجّل دخولك، وأنشئ مساحة لنشاطك، ثم حضّر محتواك. يمكنك التخطيط قبل
+            ربط أي حساب خارجي؛ تجربة الواجهة بلا حساب متاحة بشكل منفصل وواضح.
           </p>
         </div>
         <ol class="landing-journey">
@@ -376,15 +377,15 @@
             <p class="eyebrow">لك ولمن يعمل معك</p>
             <h3>الفكرة عند شخص.<br />والتنفيذ بين فريق.</h3>
             <p>
-              تصوّر لأدوار واضحة بين صاحب النشاط ومن يجهّز المحتوى ويراجعه.
-              استكشف واجهة الموظف لفهم المهام، دون اعتبارها نظام حسابات وصلاحيات
-              أمنيًا مفعّلًا.
+              صلاحيات منفصلة لصاحب النشاط ومديره وموظف المحتوى. يجهّز الموظف
+              مسوداته ويرسلها للمراجعة، ويتولى صاحب النشاط أو المدير الاعتماد والإعدادات.
+              دعوات الفريق بروابط قبول متحققة، وليست رسائل بريد مرسلة تلقائيًا.
             </p>
             <button class="btn ghost" type="button" onclick="openEmployee()">
-              استكشف واجهة الفريق <span aria-hidden="true">←</span>
+              افتح مساحة فريقك <span aria-hidden="true">←</span>
             </button>
           </div>
-          <div class="landing-team-roles" aria-label="أدوار مقترحة للفريق">
+          <div class="landing-team-roles" aria-label="أدوار الفريق">
             <div>
               <span class="landing-role-mark" aria-hidden="true">ص</span>
               <div>
@@ -396,21 +397,21 @@
             <div>
               <span class="landing-role-mark" aria-hidden="true">م</span>
               <div>
-                <strong>منسّق المحتوى</strong>
-                <p>إعداد المسودات وتنظيم المواعيد</p>
+                <strong>موظف المحتوى</strong>
+                <p>إعداد مسوداته وإرسالها للمراجعة</p>
               </div>
               <span class="landing-role-label">تحضير</span>
             </div>
             <div>
               <span class="landing-role-mark" aria-hidden="true">ر</span>
               <div>
-                <strong>مراجع المحتوى</strong>
-                <p>مراجعة الرسالة قبل النشر</p>
+                <strong>مدير النشاط</strong>
+                <p>اعتماد المحتوى وتنظيم الفريق والخطة</p>
               </div>
               <span class="landing-role-label">مراجعة</span>
             </div>
             <p class="landing-team-note">
-              أدوار توضيحية؛ الصلاحيات الفعلية تحتاج تنفيذًا في النظام الخلفي.
+              الصلاحيات تُفرض على الخادم بحسب عضويتك؛ إظهار دور في الواجهة لا يغيّرها.
             </p>
           </div>
         </div>
@@ -494,9 +495,9 @@
           </article>
         </div>
         <p class="landing-pricing-note">
-          جميع البنود نطاقات مقترحة، لا مزايا مفعّلة أو تعاقدية. لم تُعتمد أعداد
-          القنوات والمنشورات وأعضاء الفريق أو تفاصيل الضريبة والفوترة بعد. لا
-          تنشئ هذه الأزرار اشتراكًا ولا تخصم أي مبلغ.
+          تدار الأسعار وحدود القنوات والأعضاء من إعدادات المنصة؛ تفاصيل الضريبة
+          والفوترة تحت المراجعة. يبدأ النشاط بسجل تجربة، ولا يعني سجل الاشتراك دفعًا.
+          أزرار الإعداد لا تخصم أي مبلغ، وربط المنصات والإرسال الخارجي ينتظران التفعيل.
         </p>
       </div>
     </section>
@@ -517,10 +518,9 @@
             <summary>ما المتاح في هذه النسخة من تسويقات؟</summary>
             <div class="landing-faq-answer">
               <p>
-                هذه نسخة لعرض واجهات المنتج ومسارات العمل: إعداد النشاط، استكشاف
-                القنوات، تحضير المحتوى والتقويم والفريق. النماذج المعروضة ليست
-                دليلًا على نشر فعلي أو أداء حقيقي، والربط مع المنصات لم يجهز
-                بعد.
+                تسجيل الدخول ومساحات الأنشطة وحفظ المحتوى والحملات وخطط المواعيد
+                وصلاحيات الفريق ودعوات القبول والدعم. نموذج العرض بلا حساب منفصل
+                عن السجلات الحقيقية. ربط المنصات والنشر والنتائج الخارجية لم تُفعّل بعد.
               </p>
             </div>
           </details>
@@ -549,9 +549,9 @@
             <summary>ماذا يحدث عند الضغط على «ابدأ إعداد نشاطك»؟</summary>
             <div class="landing-faq-answer">
               <p>
-                يفتح مسار إعداد النشاط في الواجهة للاستكشاف. لا يمثّل ذلك تسجيل
-                دخول موثّقًا أو إنشاء اشتراك، ولا يربط حسابات خارجية تلقائيًا.
-                أما «استكشف لوحة العمل» فيفتح نظرة عامة على واجهة العمل.
+                تنتقل إلى التطبيق الفعلي وتُطلب المصادقة إن لم تكن مسجلًا. بعد
+                الدخول تنشئ مساحة مرتبطة بحسابك وتحفظ نشاطك على الخادم. لا يربط
+                هذا الإعداد حسابات منصات تلقائيًا ولا ينشئ عملية دفع.
               </p>
             </div>
           </details>
@@ -559,9 +559,9 @@
             <summary>هل الباقات والأسعار نهائية؟</summary>
             <div class="landing-faq-answer">
               <p>
-                لا. الأسعار المقترحة هي 199 و449 و899 ريال شهريًا، والأسعار
-                والحدود الحالية وتفاصيل الضريبة والفوترة تحت المراجعة. لا توجد
-                عملية شراء أو دفع أو تفعيل اشتراك من هذه الصفحة.
+                الأسعار الظاهرة للباقات المقترحة قابلة للتحديث من إدارة المنصة.
+                تفاصيل الضريبة والفوترة تحت المراجعة. لا توجد عملية شراء أو
+                تحصيل مالي من هذه الصفحة، والتجربة ليست إثبات دفع.
               </p>
             </div>
           </details>
@@ -569,9 +569,9 @@
             <summary>هل أدوار الفريق والصلاحيات مفعّلة فعليًا؟</summary>
             <div class="landing-faq-answer">
               <p>
-                المتاح هنا تصوّر لواجهة الفريق ومهامه. إنشاء الحسابات والتحقق من
-                الهوية وفرض الصلاحيات وحماية البيانات يحتاج إلى تنفيذ واختبار في
-                النظام الخلفي؛ عرض دور في الواجهة لا يوفّر هذه الحماية وحده.
+                في التطبيق المتصل بالخادم، تُحدد صلاحيات صاحب النشاط والمدير
+                والموظف من حسابه وعضويته، وتُفحص عند كل طلب. أما التجربة بلا حساب
+                فهي استكشاف منفصل، ولا تمنح حسابات أو صلاحيات حقيقية.
               </p>
             </div>
           </details>
@@ -603,6 +603,9 @@
   </footer>
 </div>
 
+<section id="sessionView" class="session-view" dir="rtl" lang="ar" hidden aria-label="الدخول إلى تسويقات">
+  <div id="sessionPanel" class="session-card" aria-live="polite"></div>
+</section>
 <div id="appView" hidden>
   <div class="menu-overlay" onclick="toggleMenu(false)"></div>
   <div class="app-shell">
@@ -615,17 +618,20 @@
       <div class="workspace-box">
         <strong id="workspaceName">نشاطك التجاري</strong
         ><small id="workspaceType">كل قنواتك في مكان واحد</small>
+        <label class="hidden" for="workspaceSelect">اختيار مساحة العمل</label>
+        <select id="workspaceSelect" class="workspace-select" onchange="switchWorkspace(this.value)" hidden></select>
       </div>
       <button class="btn primary" onclick="newPost()">+ إنشاء منشور</button>
       <div class="nav-label">إدارة التسويق</div>
       <nav class="nav-list" id="primaryNav"></nav>
       <div class="sidebar-foot">
+        <button class="btn ghost" onclick="newTicket()">طلب دعم لمساحة العمل</button>
         <button
           class="btn ghost"
-          id="switchRoleButton"
-          onclick="openEmployee()"
+          id="sessionActionButton"
+          onclick="sessionAction()"
         >
-          استكشاف تجربة الموظف
+          تسجيل الخروج
         </button>
         <button class="btn ghost" onclick="showLanding()">
           العودة إلى الموقع التعريفي
@@ -652,15 +658,16 @@
           </div>
         </div>
         <div class="top-actions">
-          <span class="badge gold">معاينة الواجهات</span
+          <span class="badge gold" id="sessionMode">مساحة عمل حقيقية</span
           ><button
             class="icon-btn"
             aria-label="تبديل المظهر"
             onclick="toggleTheme()"
           >
             ◐</button
+          ><span class="session-user-name" id="sessionUserName"></span
           ><span class="role-name muted" id="roleName" style="font-size: 12px"
-            >صاحب النشاط</span
+            >عضو مساحة العمل</span
           ><span class="avatar" id="userAvatar">ت</span>
         </div>
       </header>
@@ -676,9 +683,8 @@
     </button>
   </div>
   <h2 id="setupTitle">ابدأ بنشاطك، ثم اختر قنواتك</h2>
-  <p>
-    تسويقات يتكيّف مع عملك، مهما كان مجالك. تُحفظ هذه المعلومات على هذا المتصفح
-    فقط في نسخة الواجهات.
+  <p id="setupDescription">
+    أنشئ مساحة عمل مرتبطة بحسابك الحقيقي. اختيار القنوات لا يربط الحسابات ولا يفعّل النشر أو الدفع.
   </p>
   <form id="setupForm" onsubmit="saveSetup(event)">
     <div class="two-cols">
@@ -756,6 +762,9 @@
 <dialog id="actionDialog" class="dialog" aria-labelledby="actionTitle"></dialog>
 <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 
+  <script src="assets/deployment.js"></script>
+  <script src="assets/client-api.js"></script>
   <script src="assets/app.js"></script>
+  <script src="assets/site-settings.js"></script>
 </body>
 </html>

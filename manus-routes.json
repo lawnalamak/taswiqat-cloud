@@ -19,6 +19,19 @@
     { "path": "/#employee/overview", "title": "مساحة الموظف" },
     { "path": "/#employee/content", "title": "مسودات الموظف" },
     { "path": "/#employee/compose", "title": "إعداد محتوى" },
-    { "path": "/#employee/calendar", "title": "خطة المحتوى" }
+    { "path": "/#employee/calendar", "title": "خطة المحتوى" },
+    { "path": "/#invite/:token", "title": "قبول دعوة الفريق" },
+    { "path": "/admin.html", "title": "إدارة الشركة المشغّلة" },
+    { "path": "/admin.html#overview", "title": "نظرة عامة للمشغّل" },
+    { "path": "/admin.html#workspaces", "title": "إدارة الأنشطة" },
+    { "path": "/admin.html#users", "title": "إدارة المستخدمين" },
+    { "path": "/admin.html#subscriptions", "title": "تتبّع الاشتراكات" },
+    { "path": "/admin.html#plans", "title": "إدارة الباقات" },
+    { "path": "/admin.html#connections", "title": "حالة القنوات" },
+    { "path": "/admin.html#operations", "title": "التشغيل" },
+    { "path": "/admin.html#tickets", "title": "تذاكر الدعم" },
+    { "path": "/admin.html#audit", "title": "سجل الإجراءات" },
+    { "path": "/admin.html#site", "title": "إعدادات الموقع" },
+    { "path": "/admin.html#settings", "title": "إعدادات المشغّل" }
   ]
 }
