@@ -15,6 +15,7 @@ function harness(hash) {
       nodeType: 1, parentNode: null, dataset: {}, innerHTML: '', value: '', textContent: '',
       classList: { add() {}, remove() {} },
       addEventListener() {}, removeEventListener() {}, setAttribute() {}, focus() {},
+      after() {},
       querySelector(selector) {
         if (!selectors.has(selector)) selectors.set(selector, makeNode());
         return selectors.get(selector);

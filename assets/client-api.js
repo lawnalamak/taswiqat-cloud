@@ -51,39 +51,45 @@
     }
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), options.timeout || 25000);
-    let response;
     try {
-      response = await fetch(url.href, {
+      const response = await fetch(url.href, {
         method, headers, body, credentials: "same-origin", cache: "no-store",
         redirect: "error", signal: controller.signal,
       });
+      let data = null;
+      if (response.status !== 204) {
+        try { data = await response.json(); }
+        catch (error) {
+          if (error.name === "AbortError" || controller.signal.aborted) throw error;
+          throw new APIError("استجابة الخادم غير صالحة. لا توجد بيانات تجريبية بديلة.", response.status);
+        }
+      }
+      if (!response.ok) {
+        if (response.status === 401 && !preAuth) {
+          csrfToken = "";
+          window.dispatchEvent(new CustomEvent("taswiqat:session-expired"));
+        }
+        if (preAuth && response.status === 403) preAuthToken = "";
+        const message = data?.message || data?.error?.message ||
+          (response.status === 409 ? "تغيّرت بيانات مساحة العمل في جلسة أخرى."
+            : response.status === 403 ? "لا تملك صلاحية لهذه العملية، أو يلزم تجديد الجلسة."
+            : response.status === 429 ? "طلبات كثيرة؛ انتظر قليلًا ثم أعد المحاولة."
+            : response.status === 402 ? "هذه العملية تتجاوز حدود الباقة الحالية. لا يوجد دفع مفعّل هنا."
+            : "رفض الخادم العملية. لم يُعتمد الحفظ.");
+        throw new APIError(message, response.status, data);
+      }
+      return data;
     } catch (error) {
-      throw new APIError(error.name === "AbortError"
+      if (error instanceof APIError) throw error;
+      const aborted = error.name === "AbortError" || controller.signal.aborted;
+      throw new APIError(aborted
         ? "انتهت مهلة الاتصال. لم نتأكد من نتيجة العملية؛ أعد تحميل البيانات قبل المحاولة مجددًا."
-        : "تعذّر الاتصال بالخادم. لم نتأكد من نتيجة العملية؛ لم يُؤكد حفظ أي تغيير.");
+        : "تعذّر الاتصال بالخادم. لم نتأكد من نتيجة العملية؛ لم يُؤكد حفظ أي تغيير.",
+      0, { code: aborted ? "request_timeout" : "network_error" });
     } finally {
+      // Fetch resolves at headers; keep the deadline active through the JSON body.
       clearTimeout(timeout);
     }
-    let data = null;
-    if (response.status !== 204) {
-      try { data = await response.json(); }
-      catch { throw new APIError("استجابة الخادم غير صالحة. لا توجد بيانات تجريبية بديلة.", response.status); }
-    }
-    if (!response.ok) {
-      if (response.status === 401 && !preAuth) {
-        csrfToken = "";
-        window.dispatchEvent(new CustomEvent("taswiqat:session-expired"));
-      }
-      if (preAuth && response.status === 403) preAuthToken = "";
-      const message = data?.message || data?.error?.message ||
-        (response.status === 409 ? "تغيّرت بيانات مساحة العمل في جلسة أخرى."
-          : response.status === 403 ? "لا تملك صلاحية لهذه العملية، أو يلزم تجديد الجلسة."
-          : response.status === 429 ? "طلبات كثيرة؛ انتظر قليلًا ثم أعد المحاولة."
-          : response.status === 402 ? "هذه العملية تتجاوز حدود الباقة الحالية. لا يوجد دفع مفعّل هنا."
-          : "رفض الخادم العملية. لم يُعتمد الحفظ.");
-      throw new APIError(message, response.status, data);
-    }
-    return data;
   }
 
   async function session() {

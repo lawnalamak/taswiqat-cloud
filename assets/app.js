@@ -161,6 +161,7 @@ let teamError = "";
 let requestedView = "overview";
 let setupAfterLogin = false;
 let bootPromise;
+let initialAuthOptions = null;
 let currentView = "overview";
 let youtubeReturnIntent = null;
 let contentFilter = "all";
@@ -532,12 +533,24 @@ const AUTH_VIEWS = ["login", "register", "forgot", "reset", "verify"];
 function authRouteView(hash = location.hash) {
   return hash.match(/^#auth\/(login|register|forgot|reset|verify)(?:\?[^#]*)?$/)?.[1] || "";
 }
+function primeAuthOptions() {
+  if (initialAuthOptions || typeof api()?.authOptions !== "function") return;
+  // One-use, public capabilities only; the API keeps the pre-auth proof private.
+  initialAuthOptions = api().authOptions().then((response) => ({
+    manus: response?.manus, email: response?.email, google: response?.google,
+    apple: response?.apple, registrationEnabled: response?.registrationEnabled,
+  }));
+  // The session may finish later or open an already authenticated workspace.
+  // Handle a prefetch rejection now; the portal still observes the same failure.
+  void initialAuthOptions.catch(() => {});
+}
 function openAuth(view = "login", setup = false) {
   if (!AUTH_VIEWS.includes(view)) view = "login";
   return guardLeave(async () => {
     if (mode === "demo") { mode = "live"; clearPrivateState(); }
     const remote = remoteAppURL("overview");
     if (remote) { remote.hash = `#auth/${view}`; window.location.assign(remote.href); return; }
+    if (!sessionInfo?.authenticated && ["login", "register"].includes(view)) primeAuthOptions();
     if (bootPromise) await bootPromise;
     if (setup) setupAfterLogin = true;
     const sensitive = ["reset", "verify"].includes(authRouteView());
@@ -576,8 +589,10 @@ function showSessionPanel(message = "") {
   const view = authRouteView() || authView;
   if (!remoteAppURL(requestedView) && !["loading", "error"].includes(sessionStatus) &&
       (!authenticated || ["forgot", "reset", "verify"].includes(authRouteView())) && window.TaswiqatAuthPortal) {
+    const initialCapabilities = initialAuthOptions;
+    initialAuthOptions = null;
     window.TaswiqatAuthPortal.mount($("sessionPanel"), {
-      view, message, invite: Boolean(pendingInvite()), setup: setupAfterLogin,
+      view, message, initialCapabilities, invite: Boolean(pendingInvite()), setup: setupAfterLogin,
       onManusLogin: startLogin, onAuthenticated: finishAccountLogin,
       onHome: showLanding, onDemo: startDemo, onNavigate: (next) => openAuth(next),
     });
@@ -623,6 +638,7 @@ async function refreshSession() {
     if (data?.authenticated && (!data.user?.id || !Array.isArray(data.workspaces))) throw new Error("استجابة الجلسة غير مكتملة.");
     const previousUserId = sessionInfo?.user?.id;
     sessionInfo = data?.authenticated ? data : null;
+    if (sessionInfo) initialAuthOptions = null;
     if (mode === "live" && String(previousUserId || "") !== String(sessionInfo?.user?.id || "")) clearPrivateState();
     sessionStatus = sessionInfo ? "authenticated" : "anonymous";
     sessionError = "";
@@ -1785,6 +1801,7 @@ function initializeCustomerApp() {
   } else {
     if (/^#(app|employee|invite|auth)/.test(location.hash)) showSessionPanel();
     bootPromise = refreshSession();
+    if (/^#(app|employee|invite|auth\/(?:login|register))(?:[/?]|$)/.test(location.hash)) primeAuthOptions();
   }
   bootPromise.then(() => {
     if (setupAfterLogin && sessionInfo?.authenticated && !pendingInvite() && !authRouteView()) return startSetup();

@@ -202,6 +202,8 @@
 .auth-portal .auth-safe-button:disabled { opacity: .65; }
 .auth-portal[data-email-available="false"] .auth-safe-button:not(:disabled) { background: var(--auth-primary); border-color: var(--auth-primary); color: #fff; }
 .auth-portal[data-email-available="false"] .auth-safe-button:not(:disabled):hover { background: var(--auth-primary-hover); border-color: var(--auth-primary-hover); color: #fff; }
+.auth-capability-note + .auth-safe-entry { margin-block: 20px 22px; }
+.auth-capability-note + .auth-safe-entry .auth-safe-button { min-height: 52px; font-size: 15px; }
 .auth-portal .auth-safe-entry p { font-size: 10px; line-height: 1.8; color: var(--muted, #71677f); }
 .auth-view-links { display: flex; align-items: center; justify-content: center; gap: 7px; flex-wrap: wrap; margin-top: 17px; color: var(--muted, #71677f); font-size: 12px; }
 .auth-footer { padding-top: 18px; margin-top: 15px; border-top: 1px solid var(--border, #e9e3f3); }

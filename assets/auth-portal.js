@@ -96,6 +96,8 @@
       : options.setup ? "بعد توثيق حسابك، يمكنك متابعة إعداد مساحة نشاطك. إنشاء الحساب لا يبدأ اشتراكًا مدفوعًا." : "";
     root.innerHTML = `<aside class="auth-intro" aria-label="تسويقات"><a href="/" class="brand auth-brand" data-action="home"><span class="brand-mark" aria-hidden="true">⇄</span><span>تسويقات</span></a><div class="auth-intro-content"><span class="auth-eyebrow"><span aria-hidden="true"></span>مساحة نشاطك</span><h2>أعمالك، <br>من مكان واحد.</h2><p>ادخل بحسابك لتنظيم محتوى نشاطك والعمل مع فريقك في مساحة مستقلة.</p><div class="auth-intro-details"><div><strong>حسابك أولًا</strong><span>الدخول يثبت هويتك، والصلاحيات يحددها نشاطك.</span></div><div><strong>قنواتك باختيارك</strong><span>ربط خدمات التسويق خطوة منفصلة داخل مساحة العمل.</span></div></div></div><div class="auth-intro-foot"><span class="auth-intro-rule" aria-hidden="true"></span>تسويقات • لنشاطك وفريقك</div></aside><section class="auth-main" aria-labelledby="${prefix}-title"><div class="auth-topline"><span>حساب تسويقات</span><a href="/" data-action="home" class="auth-home">العودة للموقع <span aria-hidden="true">←</span></a></div><header class="auth-header"><h1 id="${prefix}-title" tabindex="-1">${copy.title}</h1><p>${copy.description}</p></header>${context ? `<p class="auth-context">${context}</p>` : ""}<div class="auth-status" data-status role="status" aria-live="polite" aria-atomic="true" tabindex="-1" hidden></div><div class="auth-capability-note" data-capability-note role="status" aria-live="polite"><span>جارٍ التحقق من خيارات الدخول…</span><button type="button" data-action="retry" class="auth-inline-button" hidden>إعادة المحاولة</button></div><p class="auth-closure" data-closure hidden>${CLOSURE}</p>${identityView ? `<div class="auth-providers" aria-label="خيارات الدخول عبر مزود"><button type="button" class="auth-provider auth-google" data-provider="google" disabled aria-describedby="${prefix}-provider-note"><img src="/assets/auth/google-official.png" width="40" height="40" alt="" aria-hidden="true"><span>المتابعة عبر <bdi>Google</bdi></span><small data-provider-state="google">قيد التفعيل</small></button><button type="button" class="auth-provider auth-apple" data-provider="apple" disabled aria-describedby="${prefix}-provider-note"><span class="auth-apple-icon"><img src="/assets/auth/apple-official.svg" width="40" height="40" alt="" aria-hidden="true"></span><span>المتابعة عبر <bdi>Apple</bdi></span><small data-provider-state="apple">قيد التفعيل</small></button></div><p id="${prefix}-provider-note" class="auth-provider-note">هذه الخيارات للدخول إلى تسويقات فقط؛ لا تربط إعلانات Google أو قنوات التسويق. غير المفعّل موسوم «قيد التفعيل».</p><div class="auth-divider"><span>أو باستخدام البريد</span></div>` : ""}<form class="auth-form" novalidate aria-describedby="${prefix}-email-note">${fields}${view === "login" ? '<div class="auth-form-tools"><a href="#auth/forgot" data-view="forgot" class="auth-text-link">نسيت كلمة المرور؟</a></div>' : ""}<p id="${prefix}-email-note" class="auth-email-note" data-email-note hidden>${EMAIL_UNAVAILABLE}</p><p class="auth-token-note" data-token-note role="alert" hidden>الرابط غير مكتمل. افتح رابط البريد الصحيح أو اطلب رابطًا جديدًا.</p><button type="submit" class="auth-submit" data-submit disabled><span data-submit-label>${copy.submit}</span><span class="auth-spinner" data-submit-spinner aria-hidden="true" hidden></span></button></form><div class="auth-completion" data-completion hidden><a href="#auth/login" class="auth-submit" data-view="login">العودة لتسجيل الدخول <span aria-hidden="true">←</span></a></div><div class="auth-safe-entry" data-safe-entry hidden><button type="button" data-action="manus" class="auth-safe-button" disabled><span>متابعة عبر الدخول الآمن</span><span aria-hidden="true">←</span></button><p>خيار الدخول الآمن يستخدم حساب <bdi>Manus</bdi>، وهو مستقل عن Google وApple والبريد.</p></div><nav class="auth-view-links" aria-label="التنقل بين خيارات الحساب">${view === "login" ? '<span>ليس لديك حساب؟</span> <a href="#auth/register" data-view="register" class="auth-text-link">إنشاء حساب</a>' : view === "register" ? '<span>لديك حساب بالفعل؟</span> <a href="#auth/login" data-view="login" class="auth-text-link">تسجيل الدخول</a>' : `<a href="#auth/login" data-view="login" class="auth-text-link">العودة لتسجيل الدخول</a>${view === "verify" ? ' <span aria-hidden="true">·</span> <a href="#auth/register" data-view="register" class="auth-text-link">طلب رابط تحقق جديد</a>' : view === "reset" ? ' <span aria-hidden="true">·</span> <a href="#auth/forgot" data-view="forgot" class="auth-text-link">طلب رابط استعادة جديد</a>' : ""}`}</nav><footer class="auth-footer"><p class="auth-privacy">كلمات المرور مخصصة لحساب البريد في تسويقات فقط. لا تدخل هنا كلمة مرور Google أو Apple أو Manus.</p>${typeof options.onDemo === "function" ? '<button type="button" class="auth-demo-link" data-action="demo">استكشف الواجهة بدون حساب <span aria-hidden="true">←</span></button><p class="auth-demo-note">تجربة محلية منفصلة؛ لا تربط خدمات ولا ترسل منشورات أو دعوات ولا تنشئ اشتراكًا.</p>' : ""}</footer></section>`;
     panel.replaceChildren(root);
+    // Lead with the enabled entry, rather than a disabled email form.
+    find(state, "[data-capability-note]").after(find(state, "[data-safe-entry]"));
     state.handlers = {
       click: (event) => handleClick(state, event),
       submit: (event) => handleSubmit(state, event),
@@ -108,7 +110,7 @@
     state.focusFrame = window.requestAnimationFrame(() => {
       if (current(state)) root.querySelector("h1")?.focus({ preventScroll: true });
     });
-    loadCapabilities(state);
+    loadCapabilities(state, options.initialCapabilities);
     return Object.freeze({ unmount: () => { if (instances.get(panel) === state) unmount(panel); }, refreshOptions: () => loadCapabilities(state) });
   }
   const current = (state) => !state.disposed && instances.get(state.panel) === state && state.root.parentNode === state.panel;
@@ -154,7 +156,11 @@
     const manus = state.capabilities?.manus === true && typeof state.options.onManusLogin === "function";
     safe.hidden = !manus || !["login", "register"].includes(state.view) || state.completed;
     safe.querySelector("button").disabled = state.busy || !registrationAllowed(state);
-    safe.querySelector("button span").textContent = state.busyAction === "manus" ? "جارٍ فتح الدخول الآمن…" : "متابعة عبر الدخول الآمن";
+    safe.querySelector("button span").textContent = state.busyAction === "manus" ? "جارٍ فتح تسجيل الدخول…" : "تسجيل الدخول إلى تسويقات";
+    safe.querySelector("p").textContent = ready && manus && ["email", "google", "apple"].every((key) => state.capabilities?.[key] !== true)
+      ? "الدخول المتاح حاليًا عبر Manus. اضغط الزر وأكمل الدخول في صفحته الآمنة؛ لا تدخل بريدًا أو كلمة مرور هنا. Google وApple والبريد قيد التفعيل."
+      : "هذا الخيار يستخدم حساب Manus للدخول إلى تسويقات فقط، ولا يربط قنوات التسويق.";
+    find(state, "form").hidden = state.completed || ["login", "register"].includes(state.view) && (!ready || state.capabilities?.email !== true);
     const submit = find(state, "[data-submit]");
     submit.disabled = state.busy || state.completed || !emailAllowed(state);
     find(state, "[data-submit-label]").textContent = state.busyAction === "email" ? COPY[state.view].busy : COPY[state.view].submit;
@@ -165,14 +171,14 @@
     state.root.dataset.busy = String(state.busy);
     state.root.dataset.emailAvailable = String(emailAllowed(state));
   }
-  async function loadCapabilities(state) {
+  async function loadCapabilities(state, initialCapabilities) {
     if (!current(state) || state.busy || state.capabilitiesState === "pending") return;
     const epoch = ++state.capabilitiesEpoch;
     state.capabilitiesState = "pending";
     syncControls(state);
     try {
       if (typeof api()?.authOptions !== "function") throw new Error("API unavailable");
-      const response = await api().authOptions();
+      const response = await (initialCapabilities || api().authOptions());
       if (!current(state) || epoch !== state.capabilitiesEpoch) return;
       if (!response || typeof response.manus !== "boolean" || typeof response.email !== "boolean" || typeof response.google !== "boolean" || typeof response.apple !== "boolean" || typeof response.registrationEnabled !== "boolean") throw new Error("Invalid capabilities");
       // Deliberately do not retain csrfToken in the UI; API helpers manage it.
