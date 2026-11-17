@@ -1,0 +1,590 @@
+<div id="landingView" class="landing" dir="rtl" lang="ar">
+  <a class="landing-skip" href="#landingMain">انتقل إلى المحتوى</a>
+
+  <header class="landing-header">
+    <div class="landing-container landing-header-inner">
+      <a
+        class="brand landing-brand"
+        href="#landingView"
+        aria-label="تسويقات — بداية الصفحة"
+      >
+        <span class="brand-mark landing-brand-mark" aria-hidden="true"
+          ><span>↗</span><span>↙</span></span
+        >
+        <span>تسويقات</span>
+      </a>
+      <nav class="landing-nav" aria-label="التنقل في الموقع التعريفي">
+        <a href="#domains">لنشاطك</a>
+        <a href="#services">مساحة العمل</a>
+        <a href="#features">كيف تبدأ</a>
+        <a href="#pricing">الباقات</a>
+        <a href="#faq">الأسئلة الشائعة</a>
+      </nav>
+      <div class="landing-header-actions">
+        <button
+          class="btn ghost landing-theme"
+          type="button"
+          onclick="toggleTheme()"
+          aria-label="التبديل بين المظهر الفاتح والداكن"
+        >
+          تبديل المظهر
+        </button>
+        <button class="btn primary" type="button" onclick="startSetup()">
+          ابدأ إعداد نشاطك
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="landingMain">
+    <section class="landing-hero" aria-labelledby="landingHeroTitle">
+      <div class="landing-container landing-hero-grid">
+        <div class="landing-hero-copy">
+          <p class="eyebrow landing-eyebrow">
+            <span aria-hidden="true"></span>مساحة تسويق لكل نشاط عربي
+          </p>
+          <h1 id="landingHeroTitle">كل قنواتك. <span>مكان واحد.</span></h1>
+          <p class="landing-hero-description">
+            من أول فكرة إلى خطة النشر: نظّم محتوى نشاطك، وجهّزه للقنوات
+            المناسبة، واجمع عمل فريقك في مساحة واضحة. لمتجرك، بقالتك، شركتك،
+            مطعمك أو خدماتك.
+          </p>
+          <div class="landing-hero-actions">
+            <button class="btn primary" type="button" onclick="startSetup()">
+              ابدأ إعداد نشاطك <span aria-hidden="true">←</span>
+            </button>
+            <button
+              class="btn ghost"
+              type="button"
+              onclick="openApp('overview')"
+            >
+              استكشف لوحة العمل
+            </button>
+          </div>
+          <p class="landing-hero-note">
+            استكشاف واجهات المنتج، دون تسجيل دخول أو شراء. الربط الفعلي مع
+            المنصات لم يجهز بعد.
+          </p>
+        </div>
+
+        <figure
+          class="landing-workspace"
+          aria-labelledby="landingWorkspaceCaption"
+        >
+          <div class="landing-workspace-top">
+            <span class="landing-workspace-label"
+              ><span class="landing-workspace-dot" aria-hidden="true"></span
+              >مساحة نشاطك</span
+            >
+            <span class="badge landing-demo-badge">نموذج واجهة</span>
+          </div>
+          <div class="landing-workspace-shell">
+            <aside
+              class="landing-mock-sidebar"
+              aria-label="أقسام النموذج التوضيحي"
+            >
+              <span class="landing-mock-brand">تسويقات</span>
+              <span class="landing-mock-nav">نظرة عامة</span>
+              <span class="landing-mock-nav is-current">المحتوى</span>
+              <span class="landing-mock-nav">القنوات</span>
+              <span class="landing-mock-nav">التقويم</span>
+              <span class="landing-mock-nav">النتائج</span>
+              <span class="landing-mock-side-foot">نشاطك، بطريقتك</span>
+            </aside>
+            <div class="landing-mock-main">
+              <div class="landing-mock-heading">
+                <div>
+                  <p class="landing-micro-label">المحتوى والنشر</p>
+                  <h2>فكرة واحدة، أكثر من قناة</h2>
+                </div>
+                <span class="landing-mock-draft">مسودة</span>
+              </div>
+              <div class="landing-mock-post">
+                <div class="landing-mock-post-head">
+                  <span class="landing-post-symbol" aria-hidden="true">↗</span>
+                  <div>
+                    <strong>الجديد في نشاطنا</strong
+                    ><span>مثال لمحتوى تعريفي</span>
+                  </div>
+                </div>
+                <p>
+                  اكتشف أحدث منتجاتنا وخدماتنا، وتعرّف على التفاصيل التي تهمّك
+                  قبل زيارتك القادمة.
+                </p>
+                <div class="landing-mock-tags">
+                  <span>نص المنشور</span><span>وسائط المحتوى</span>
+                </div>
+              </div>
+              <div class="landing-mock-channel-area">
+                <p class="landing-micro-label">تكييف المحتوى لكل قناة</p>
+                <div class="landing-mock-channels">
+                  <div>
+                    <span class="landing-channel-letter" aria-hidden="true"
+                      >IG</span
+                    ><strong>إنستقرام</strong><span>منشور بصري</span>
+                  </div>
+                  <div>
+                    <span class="landing-channel-letter" aria-hidden="true"
+                      >X</span
+                    ><strong>إكس</strong><span>نص مختصر</span>
+                  </div>
+                  <div>
+                    <span class="landing-channel-letter" aria-hidden="true"
+                      >f</span
+                    ><strong>فيسبوك</strong><span>منشور صفحة</span>
+                  </div>
+                </div>
+              </div>
+              <div class="landing-mock-flow" aria-label="مسار إعداد المنشور">
+                <span>إعداد المحتوى</span><span aria-hidden="true">←</span
+                ><span>مراجعة القنوات</span><span aria-hidden="true">←</span
+                ><strong>اختيار الموعد</strong>
+              </div>
+            </div>
+          </div>
+          <figcaption id="landingWorkspaceCaption">
+            تصوّر لمسار النشر متعدد القنوات؛ هذا المثال لا يربط حسابات ولا ينشر
+            محتوى فعليًا.
+          </figcaption>
+        </figure>
+      </div>
+
+      <div class="landing-container landing-platforms">
+        <div class="landing-platforms-heading">
+          <p class="eyebrow">قنواتك وأدواتك التسويقية</p>
+          <p>حضور متنوّع. تنظيم واحد.</p>
+        </div>
+        <ul
+          class="landing-platform-list"
+          aria-label="القنوات المستهدفة في تصميم المنتج"
+        >
+          <li>إنستقرام</li>
+          <li>تيك توك</li>
+          <li>إكس</li>
+          <li>سناب شات</li>
+          <li>منتجات قوقل</li>
+          <li>واتساب</li>
+          <li>فيسبوك</li>
+        </ul>
+        <p class="landing-platform-note">
+          هذه قنوات مستهدفة في التصميم، وليست اتصالات مفعّلة. تختلف إمكانات
+          النشر والرسائل والإعلانات والقياس حسب المنصة، ونوع الحساب، والصلاحيات
+          المتاحة.
+        </p>
+      </div>
+    </section>
+
+    <section
+      id="domains"
+      class="landing-section landing-domains"
+      aria-labelledby="landingDomainsTitle"
+    >
+      <div class="landing-container">
+        <div class="landing-section-heading">
+          <div>
+            <p class="eyebrow">ليس لنوع واحد من الأعمال</p>
+            <h2 id="landingDomainsTitle">
+              نشاطك مختلف.<br />ومساحة عملك تستوعبه.
+            </h2>
+          </div>
+          <p>
+            المنتج أو العرض أو الخدمة هو نقطة البداية. نظّم تفاصيل نشاطك، ثم
+            حوّلها إلى محتوى يناسب جمهورك وقنواتك.
+          </p>
+        </div>
+        <div class="landing-domain-grid">
+          <article class="card landing-domain-card">
+            <span class="landing-domain-label">تجارة وتجزئة</span>
+            <h3>متجر</h3>
+            <p>
+              عرّف بمنتجاتك، جهّز إطلاق التشكيلات، ورتّب محتوى المواسم والعروض
+              في خطة واحدة.
+            </p>
+            <span class="landing-use-case">من المنتج إلى المنشور</span>
+          </article>
+          <article class="card landing-domain-card">
+            <span class="landing-domain-label">احتياجات يومية</span>
+            <h3>بقالة</h3>
+            <p>
+              أبرز المنتجات المتوفرة والعروض الأسبوعية، ووضّح أوقات العمل
+              وخيارات التوصيل لجمهور الحي.
+            </p>
+            <span class="landing-use-case">حضور قريب من عملائك</span>
+          </article>
+          <article class="card landing-domain-card">
+            <span class="landing-domain-label">أعمال وعلامات</span>
+            <h3>شركة</h3>
+            <p>
+              اجمع أخبار الشركة وحملاتها وخدماتها، وحافظ على صوت متّسق للعلامة
+              بين فريقك وقنواتك.
+            </p>
+            <span class="landing-use-case">رسالة واضحة لعلامتك</span>
+          </article>
+          <article class="card landing-domain-card">
+            <span class="landing-domain-label">ضيافة ومأكولات</span>
+            <h3>مطعم</h3>
+            <p>
+              جهّز محتوى أطباقك وعروضك وتجربة المكان، ونظّم نشره ضمن خطة تسويقية
+              أوسع من قائمة الطعام.
+            </p>
+            <span class="landing-use-case">تجربتك تستحق أن تُروى</span>
+          </article>
+          <article class="card landing-domain-card">
+            <span class="landing-domain-label">خبرات ومهارات</span>
+            <h3>خدمات</h3>
+            <p>
+              اشرح ما تقدّمه، أجب عن الأسئلة المتكررة في محتواك، وعرّف جمهورك
+              بطريقة طلب الخدمة.
+            </p>
+            <span class="landing-use-case">وضّح قيمة ما تقدّمه</span>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section
+      id="services"
+      class="landing-section landing-services"
+      aria-labelledby="landingServicesTitle"
+    >
+      <div class="landing-container">
+        <div class="landing-section-heading">
+          <div>
+            <p class="eyebrow">مركز إدارة التسويق والنشر</p>
+            <h2 id="landingServicesTitle">
+              من تفاصيل متفرّقة<br />إلى مسار عمل واضح.
+            </h2>
+          </div>
+          <p>
+            أربع مساحات مترابطة في التصميم، تجمع ما تحتاجه للتحضير والمراجعة
+            والتخطيط والمتابعة، بدل التنقّل بين أدوات منفصلة.
+          </p>
+        </div>
+        <div class="landing-service-grid">
+          <article class="landing-service-card">
+            <span class="landing-service-number" aria-hidden="true">01</span>
+            <h3>القنوات والربط</h3>
+            <p>
+              مساحة للحسابات وأدوات التسويق، توضّح وظيفة كل قناة وما يحتاجه
+              ربطها من صلاحيات.
+            </p>
+            <span class="landing-service-detail">حساباتك وصلاحياتها</span>
+          </article>
+          <article class="landing-service-card">
+            <span class="landing-service-number" aria-hidden="true">02</span>
+            <h3>المحتوى والنشر</h3>
+            <p>
+              جهّز النص والوسائط، وراجع نسخة مناسبة لكل قناة بدل إرسال المحتوى
+              نفسه إلى الجميع.
+            </p>
+            <span class="landing-service-detail">مسودة، تكييف، مراجعة</span>
+          </article>
+          <article class="landing-service-card">
+            <span class="landing-service-number" aria-hidden="true">03</span>
+            <h3>التقويم والجدولة</h3>
+            <p>
+              رتّب مواعيد المحتوى وحملات المواسم، واجعل الخطة القادمة واضحة لك
+              ولمن يعمل معك.
+            </p>
+            <span class="landing-service-detail">خطة قبل وقت النشر</span>
+          </article>
+          <article class="landing-service-card">
+            <span class="landing-service-number" aria-hidden="true">04</span>
+            <h3>النتائج والمتابعة</h3>
+            <p>
+              تصميم يجمع حالة المحتوى ومؤشرات الأداء التي يمكن للمنصات إتاحتها
+              بعد اكتمال الربط.
+            </p>
+            <span class="landing-service-detail">قراءة أوضح لما يحدث</span>
+          </article>
+        </div>
+        <div class="landing-scope-note">
+          <span class="landing-scope-mark" aria-hidden="true">↔</span>
+          <p>
+            النشر الاجتماعي، رسائل واتساب، وإعلانات وقياس منتجات قوقل ليست
+            الوظيفة نفسها. التنفيذ الفعلي لكل وظيفة يحتاج ربطًا منفصلًا واعتماد
+            الصلاحيات؛ هذه النسخة لعرض الواجهات ومسارات العمل.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section
+      id="features"
+      class="landing-section landing-features"
+      aria-labelledby="landingFeaturesTitle"
+    >
+      <div class="landing-container">
+        <div class="landing-section-heading">
+          <div>
+            <p class="eyebrow">بداية بسيطة، عمل منظّم</p>
+            <h2 id="landingFeaturesTitle">ابدأ بنشاطك.<br />ثم ابنِ خطتك.</h2>
+          </div>
+          <p>
+            رحلة إعداد من ثلاث خطوات تساعدك على فهم مساحة العمل. لا تتطلب هذه
+            الجولة حسابًا فعليًا على أي منصة.
+          </p>
+        </div>
+        <ol class="landing-journey">
+          <li>
+            <span class="landing-step-number" aria-hidden="true">١</span>
+            <div>
+              <h3>عرّف نشاطك</h3>
+              <p>
+                ابدأ بالاسم ونوع النشاط وما تقدّمه، ليكون المحتوى مرتبطًا بعملك
+                وجمهورك.
+              </p>
+            </div>
+          </li>
+          <li>
+            <span class="landing-step-number" aria-hidden="true">٢</span>
+            <div>
+              <h3>حدّد قنواتك</h3>
+              <p>
+                استعرض القنوات المستهدفة، وافهم الفرق بين احتياجات النشر
+                والمراسلة والإعلانات.
+              </p>
+            </div>
+          </li>
+          <li>
+            <span class="landing-step-number" aria-hidden="true">٣</span>
+            <div>
+              <h3>جهّز أول محتوى</h3>
+              <p>
+                اكتب مسودتك، راجع طريقة ظهورها، واستكشف تنظيم مواعيدها في لوحة
+                العمل.
+              </p>
+            </div>
+          </li>
+        </ol>
+        <div class="landing-team-panel">
+          <div class="landing-team-copy">
+            <p class="eyebrow">لك ولمن يعمل معك</p>
+            <h3>الفكرة عند شخص.<br />والتنفيذ بين فريق.</h3>
+            <p>
+              تصوّر لأدوار واضحة بين صاحب النشاط ومن يجهّز المحتوى ويراجعه.
+              استكشف واجهة الموظف لفهم المهام، دون اعتبارها نظام حسابات وصلاحيات
+              أمنيًا مفعّلًا.
+            </p>
+            <button class="btn ghost" type="button" onclick="openEmployee()">
+              استكشف واجهة الفريق <span aria-hidden="true">←</span>
+            </button>
+          </div>
+          <div class="landing-team-roles" aria-label="أدوار مقترحة للفريق">
+            <div>
+              <span class="landing-role-mark" aria-hidden="true">ص</span>
+              <div>
+                <strong>صاحب النشاط</strong>
+                <p>توجيه الخطة ومراجعة الإعدادات</p>
+              </div>
+              <span class="landing-role-label">إدارة</span>
+            </div>
+            <div>
+              <span class="landing-role-mark" aria-hidden="true">م</span>
+              <div>
+                <strong>منسّق المحتوى</strong>
+                <p>إعداد المسودات وتنظيم المواعيد</p>
+              </div>
+              <span class="landing-role-label">تحضير</span>
+            </div>
+            <div>
+              <span class="landing-role-mark" aria-hidden="true">ر</span>
+              <div>
+                <strong>مراجع المحتوى</strong>
+                <p>مراجعة الرسالة قبل النشر</p>
+              </div>
+              <span class="landing-role-label">مراجعة</span>
+            </div>
+            <p class="landing-team-note">
+              أدوار توضيحية؛ الصلاحيات الفعلية تحتاج تنفيذًا في النظام الخلفي.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section
+      id="pricing"
+      class="landing-section landing-pricing"
+      aria-labelledby="landingPricingTitle"
+    >
+      <div class="landing-container">
+        <div class="landing-section-heading">
+          <div>
+            <p class="eyebrow">تصوّر يناسب مراحل نمو نشاطك</p>
+            <h2 id="landingPricingTitle">باقات مقترحة</h2>
+          </div>
+          <p>
+            الأسعار والحدود الحالية تحت المراجعة. الباقات هنا لعرض التصوّر فقط،
+            وليست اشتراكات متاحة للشراء.
+          </p>
+        </div>
+        <div class="landing-pricing-grid">
+          <article class="card landing-plan">
+            <p class="landing-plan-kicker">لنشاط يبدأ بتنظيم حضوره</p>
+            <h3>الأساسية</h3>
+            <p class="landing-plan-price">
+              <strong dir="ltr">199</strong><span>ريال / شهر</span>
+            </p>
+            <p class="landing-plan-description">
+              تصوّر لمساحة عمل تركّز على الأساسيات.
+            </p>
+            <ul>
+              <li>تنظيم القنوات المختارة</li>
+              <li>إعداد المحتوى ومراجعته</li>
+              <li>تقويم لخطة النشر</li>
+            </ul>
+            <button class="btn ghost" type="button" onclick="startSetup()">
+              استكشف الإعداد
+            </button>
+          </article>
+          <article class="card landing-plan landing-plan-accent">
+            <p class="landing-plan-kicker">لعمل يحتاج تنسيقًا أوسع</p>
+            <h3>الاحترافية</h3>
+            <p class="landing-plan-price">
+              <strong dir="ltr">449</strong><span>ريال / شهر</span>
+            </p>
+            <p class="landing-plan-description">
+              تصوّر يجمع المحتوى والحملات وعمل الفريق.
+            </p>
+            <ul>
+              <li>تنسيق المحتوى متعدد القنوات</li>
+              <li>تخطيط الحملات والمواسم</li>
+              <li>متابعة المهام والنتائج</li>
+            </ul>
+            <button
+              class="btn secondary"
+              type="button"
+              onclick="openApp('overview')"
+            >
+              استكشف لوحة العمل
+            </button>
+          </article>
+          <article class="card landing-plan">
+            <p class="landing-plan-kicker">لأعمال تتعدد فرقها وعلاماتها</p>
+            <h3>المؤسسات</h3>
+            <p class="landing-plan-price">
+              <strong dir="ltr">899</strong><span>ريال / شهر</span>
+            </p>
+            <p class="landing-plan-description">
+              تصوّر لتنظيم احتياجات الأعمال الأكبر.
+            </p>
+            <ul>
+              <li>تنظيم الفروع والعلامات</li>
+              <li>أدوار ومراجعات للفريق</li>
+              <li>نظرة أشمل على خطط التسويق</li>
+            </ul>
+            <button class="btn ghost" type="button" onclick="startSetup()">
+              استكشف إعداد نشاطك
+            </button>
+          </article>
+        </div>
+        <p class="landing-pricing-note">
+          جميع البنود نطاقات مقترحة، لا مزايا مفعّلة أو تعاقدية. لم تُعتمد أعداد
+          القنوات والمنشورات وأعضاء الفريق أو تفاصيل الضريبة والفوترة بعد. لا
+          تنشئ هذه الأزرار اشتراكًا ولا تخصم أي مبلغ.
+        </p>
+      </div>
+    </section>
+
+    <section
+      id="faq"
+      class="landing-section landing-faq"
+      aria-labelledby="landingFaqTitle"
+    >
+      <div class="landing-container landing-faq-grid">
+        <div class="landing-faq-heading">
+          <p class="eyebrow">قبل أن تبدأ</p>
+          <h2 id="landingFaqTitle">إجابات واضحة.<br />بلا وعود زائدة.</h2>
+          <p>ما يمكنك استكشافه الآن، وما يحتاج إلى اكتمال التنفيذ.</p>
+        </div>
+        <div class="landing-faq-list">
+          <details open>
+            <summary>ما المتاح في هذه النسخة من تسويقات؟</summary>
+            <div class="landing-faq-answer">
+              <p>
+                هذه نسخة لعرض واجهات المنتج ومسارات العمل: إعداد النشاط، استكشاف
+                القنوات، تحضير المحتوى والتقويم والفريق. النماذج المعروضة ليست
+                دليلًا على نشر فعلي أو أداء حقيقي، والربط مع المنصات لم يجهز
+                بعد.
+              </p>
+            </div>
+          </details>
+          <details>
+            <summary>هل تسويقات مخصّص للمطاعم فقط؟</summary>
+            <div class="landing-faq-answer">
+              <p>
+                لا. التصميم موجّه لكل تاجر ونشاط عربي، مثل المتاجر والبقالات
+                والشركات والمطاعم ومقدّمي الخدمات. التركيز على إدارة التسويق
+                والمحتوى متعدد القنوات، وليس قائمة الطعام وحدها.
+              </p>
+            </div>
+          </details>
+          <details>
+            <summary>هل يمكن النشر على كل القنوات بالطريقة نفسها؟</summary>
+            <div class="landing-faq-answer">
+              <p>
+                لا. تختلف أنواع المحتوى وإمكانات النشر والرسائل والإعلانات
+                والقياس بحسب المنصة ونوع الحساب والصلاحيات المعتمدة. إدراج
+                إنستقرام وتيك توك وإكس وسناب شات ومنتجات قوقل وواتساب وفيسبوك في
+                التصميم لا يعني أن كل وظائفها متاحة أو أن الربط بها مفعّل.
+              </p>
+            </div>
+          </details>
+          <details>
+            <summary>ماذا يحدث عند الضغط على «ابدأ إعداد نشاطك»؟</summary>
+            <div class="landing-faq-answer">
+              <p>
+                يفتح مسار إعداد النشاط في الواجهة للاستكشاف. لا يمثّل ذلك تسجيل
+                دخول موثّقًا أو إنشاء اشتراك، ولا يربط حسابات خارجية تلقائيًا.
+                أما «استكشف لوحة العمل» فيفتح نظرة عامة على واجهة العمل.
+              </p>
+            </div>
+          </details>
+          <details>
+            <summary>هل الباقات والأسعار نهائية؟</summary>
+            <div class="landing-faq-answer">
+              <p>
+                لا. الأسعار المقترحة هي 199 و449 و899 ريال شهريًا، والأسعار
+                والحدود الحالية وتفاصيل الضريبة والفوترة تحت المراجعة. لا توجد
+                عملية شراء أو دفع أو تفعيل اشتراك من هذه الصفحة.
+              </p>
+            </div>
+          </details>
+          <details>
+            <summary>هل أدوار الفريق والصلاحيات مفعّلة فعليًا؟</summary>
+            <div class="landing-faq-answer">
+              <p>
+                المتاح هنا تصوّر لواجهة الفريق ومهامه. إنشاء الحسابات والتحقق من
+                الهوية وفرض الصلاحيات وحماية البيانات يحتاج إلى تنفيذ واختبار في
+                النظام الخلفي؛ عرض دور في الواجهة لا يوفّر هذه الحماية وحده.
+              </p>
+            </div>
+          </details>
+        </div>
+      </div>
+      <div class="landing-container">
+        <div class="landing-closing">
+          <div>
+            <p class="eyebrow">ابدأ من الصورة الكاملة</p>
+            <h3>رتّب حضور نشاطك، خطوة بخطوة.</h3>
+            <p>استكشف مساحة تسويقات وتعرّف على مسار العمل المقترح.</p>
+          </div>
+          <button class="btn primary" type="button" onclick="startSetup()">
+            ابدأ إعداد نشاطك <span aria-hidden="true">←</span>
+          </button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="landing-footer">
+    <div class="landing-container">
+      <a class="brand landing-brand" href="#landingView"
+        ><span class="brand-mark landing-brand-mark" aria-hidden="true"
+          ><span>↗</span><span>↙</span></span
+        ><span>تسويقات</span></a
+      >
+    </div>
+  </footer>
+</div>

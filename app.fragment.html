@@ -1,0 +1,152 @@
+<div id="appView" hidden>
+  <div class="menu-overlay" onclick="toggleMenu(false)"></div>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="التنقل الرئيسي">
+      <a class="brand" href="#" onclick="showLanding();return false"
+        ><span class="brand-mark" aria-hidden="true">⇄</span
+        ><span>تسويقات</span></a
+      >
+      <div class="workspace-label">مساحة العمل</div>
+      <div class="workspace-box">
+        <strong id="workspaceName">نشاطك التجاري</strong
+        ><small id="workspaceType">كل قنواتك في مكان واحد</small>
+      </div>
+      <button class="btn primary" onclick="newPost()">+ إنشاء منشور</button>
+      <div class="nav-label">إدارة التسويق</div>
+      <nav class="nav-list" id="primaryNav"></nav>
+      <div class="sidebar-foot">
+        <button
+          class="btn ghost"
+          id="switchRoleButton"
+          onclick="openEmployee()"
+        >
+          استكشاف تجربة الموظف
+        </button>
+        <button class="btn ghost" onclick="showLanding()">
+          العودة إلى الموقع التعريفي
+        </button>
+        <small
+          class="muted"
+          style="padding: 8px; text-align: center; color: #9aadbf"
+          >تسويقات · مساحة عمل عربية</small
+        >
+      </div>
+    </aside>
+    <div class="app-body">
+      <header class="app-topbar">
+        <div class="row">
+          <button
+            class="icon-btn mobile-menu"
+            aria-label="فتح القائمة"
+            onclick="toggleMenu()"
+          >
+            ☰
+          </button>
+          <div class="crumb">
+            مساحة العمل <strong id="breadcrumb">نظرة عامة</strong>
+          </div>
+        </div>
+        <div class="top-actions">
+          <span class="badge gold">معاينة الواجهات</span
+          ><button
+            class="icon-btn"
+            aria-label="تبديل المظهر"
+            onclick="toggleTheme()"
+          >
+            ◐</button
+          ><span class="role-name muted" id="roleName" style="font-size: 12px"
+            >صاحب النشاط</span
+          ><span class="avatar" id="userAvatar">ت</span>
+        </div>
+      </header>
+      <main class="app-main" id="appMain" tabindex="-1"></main>
+    </div>
+  </div>
+</div>
+<dialog id="setupDialog" class="dialog" aria-labelledby="setupTitle">
+  <div class="dialog-head">
+    <span class="eyebrow">جهّز مساحة عملك</span
+    ><button class="icon-btn" aria-label="إغلاق الإعداد" onclick="closeSetup()">
+      ×
+    </button>
+  </div>
+  <h2 id="setupTitle">ابدأ بنشاطك، ثم اختر قنواتك</h2>
+  <p>
+    تسويقات يتكيّف مع عملك، مهما كان مجالك. تُحفظ هذه المعلومات على هذا المتصفح
+    فقط في نسخة الواجهات.
+  </p>
+  <form id="setupForm" onsubmit="saveSetup(event)">
+    <div class="two-cols">
+      <div class="field">
+        <label for="businessName"
+          >اسم النشاط <span aria-hidden="true">*</span></label
+        ><input
+          id="businessName"
+          name="name"
+          required
+          maxlength="80"
+          placeholder="مثال: شركة مدار"
+        />
+      </div>
+      <div class="field">
+        <label for="businessType">نوع النشاط</label
+        ><select id="businessType" name="type">
+          <option value="متجر وتجارة إلكترونية">متجر وتجارة إلكترونية</option>
+          <option value="بقالة وتجزئة">بقالة وتجزئة</option>
+          <option value="شركة وخدمات">شركة وخدمات</option>
+          <option value="مطعم ومقهى">مطعم ومقهى</option>
+          <option value="نشاط آخر">نشاط آخر</option>
+        </select>
+      </div>
+    </div>
+    <div class="two-cols">
+      <div class="field">
+        <label for="businessMarket">السوق المستهدف</label
+        ><input
+          id="businessMarket"
+          name="market"
+          maxlength="80"
+          placeholder="مثال: السعودية، الخليج، السوق العربي"
+        />
+      </div>
+      <div class="field">
+        <label for="businessWebsite">الموقع الإلكتروني — اختياري</label
+        ><input
+          id="businessWebsite"
+          name="website"
+          type="url"
+          dir="ltr"
+          placeholder="https://example.com"
+        />
+      </div>
+    </div>
+    <div class="field">
+      <label for="businessBio">نبذة عن نشاطك</label
+      ><textarea
+        id="businessBio"
+        name="bio"
+        maxlength="1000"
+        style="min-height: 90px"
+        placeholder="ماذا تقدم؟ ومن جمهورك؟"
+      ></textarea>
+    </div>
+    <fieldset style="border: 0; padding: 0; margin: 0">
+      <legend style="font-size: 13px; font-weight: 600; margin-bottom: 10px">
+        القنوات التي تريد إدارتها
+      </legend>
+      <div class="selection-grid" id="setupChannels"></div>
+    </fieldset>
+    <div class="notice info" style="margin-top: 18px">
+      اختيار القنوات يجهّز مساحة العمل فقط، ولا يعني أن حساباتك أصبحت مرتبطة.
+      الربط الفعلي يتم من مركز القنوات بعد تجهيز التكامل.
+    </div>
+    <div class="form-error" id="setupError" role="alert"></div>
+    <div class="dialog-actions">
+      <button class="btn ghost" type="button" onclick="closeSetup()">
+        لاحقًا</button
+      ><button class="btn primary" type="submit">حفظ وفتح مساحة العمل ←</button>
+    </div>
+  </form>
+</dialog>
+<dialog id="actionDialog" class="dialog" aria-labelledby="actionTitle"></dialog>
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
