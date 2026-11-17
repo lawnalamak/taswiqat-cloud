@@ -21,3 +21,11 @@
 بعد تفويض بوابة الوصول الخاصة ثم OAuth التطبيق نفسه بالهوية المعتمدة، callback عاد إلى admin.html. القراءة من المتصفح على الدومين المنشور: health200/session authenticated=true role=admin/admin GET200. حفظ snapshot دون تغيير القيم عبر adminRequest المنشور نجح ورفع revision4 إلى5؛ transportFixed=true/userCount1/workspaceCount0/unchangedSite=true. لا أسرار أو رموز جلسة في هذا السجل، ولا عملاء اختبار.
 
 مستوى الوصول owner/private باقٍ؛ اختيار Public في بطاقة النشر بيد المالك ولا يتطلب إعادة نشر. لا تحصيل ولا تكامل اجتماعي ولا worker نشر ولا دعوة بريدية مفعّلة. تحديث أدلة المستندات بعد869108e لا يغير ملفات التطبيق المنشور.
+
+## الرابط المختصر — 11:18 UTC
+
+بناءً على طلب المالك اللاحق لتقصير الرابط دون تغيير اسم «تسويقات»، حُفظ taswiqat من Settings > Domains > Edit URL وظهرت Saved successfully. التطبيق الحالي https://taswiqat.manus.space والإدارة https://taswiqat.manus.space/admin.html. الصحة200/ready=true/schemaVersion2 على الأصل الجديد. visibility=owner/privateFirstPublish=true بقيت، ولم يحدث شراء نطاق أو نشر إصدار خادم آخر. assets/deployment.js يوجّه الدخول من GitHub Pages إلى الأصل الجديد فقط؛ المعاينة والتطبيق المنشور يبقيان same-origin.
+
+طلب المالك لاحقًا إلغاء العنوان السابق. فحص 11:24 UTC أكد أنه ما زال يرد: / يحوّل302 إلى بوابة الوصول الخاص و/api/health يرجع200. لا يظهر في Domains المتاح خيار حذف alias الافتراضي السابق؛ لم يُعطّل فعليًا. لا يُعامل تحديث الروابط بوصفه حظرًا للخادم ولا توسيعًا لحق الوصول. إلغاءه يحتاج عملية نطاق موثقة على طبقة المنصة، لا حذف الموقع أو تغيير صلاحيات JWT/DB أو فرض Host عام على البروكسي الداخلي.
+
+فحص 11:26 UTC بعد تفويض بوابة الوصول ثم OAuth التطبيق على الأصل الجديد: /api/session200 authenticated=true ودورadmin والهوية المعتمدة متطابقة، /api/admin/state200، adminGate مخفي وadminShell ظاهر. لم تُكتب بيانات عملاء أو يُعاد تثبيت المدير أو تعديل الإعدادات. تجميع الواجهة نجح وفحوص Pages-only routing الثلاثة نجحت، ولا إعادة نشر خادم لمجرد تحديث انتقال Pages.

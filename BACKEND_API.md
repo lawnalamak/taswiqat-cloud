@@ -2,6 +2,8 @@
 
 Node 22 ES modules، Express 4، MySQL مدارة. كل الخطأ JSON `{error:{code,message}}`، ولا توجد هويات أو تكاملات أو مدفوعات وهمية. نُفّذت المهاجرات v2 وإعداد المدير الخاص وتثبيت هويته بعد OAuth فعلي؛ لا حاجة لإعادتها عند تشغيل الخادم.
 
+الرابط التشغيلي المختصر منذ 17 نوفمبر 2026: https://taswiqat.manus.space، والإدارة /admin.html، وcallback تسجيل التطبيق https://taswiqat.manus.space/api/auth/callback. تغيير النطاق الفرعي لا يغير الإصدار المنشور869108e ولا رؤية owner/private. الأصول في عقود OAuth أدناه تؤخذ من أصل المتصفح الفعلي، لا من اسم النطاق السابق في أدلة الاختبارات التاريخية.
+
 ## التشغيل
 
 `node backend/migrate.mjs` مهاجرات إضافية versioned لجداول `taswiqat_*` فقط، دون تعديل جداول قديمة، defaults عبر INSERT IGNORE، ويغلق pool. `printf '%s\n' "$ADMIN_EMAIL" | node backend/configure-admin.mjs` يكتب البريد في singleton خاص DB. تغيير/إعادة تثبيت الهوية يتطلب `--change`، يزيل pin القديم ويخفض المدير القديم، ولا يمنح البريد دورًا إلا بعد OAuth GetUserInfo موثّق. `node backend/app.mjs` على `0.0.0.0:${PORT:-3000}`، لا يشغّل مهاجرات تلقائيًا.
