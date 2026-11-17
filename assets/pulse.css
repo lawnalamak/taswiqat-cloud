@@ -6,7 +6,9 @@
   --brand-hover: #3520b6;
   --accent: #ff6b35;
   --accent-hover: #f15b25;
-  --accent-ink: #30132d;
+  --accent-action: #cf4616;
+  --accent-action-hover: #b83b11;
+  --accent-ink: #ffffff;
   --accent-soft: #fff0e9;
   --accent-text: #923514;
   --navy: var(--brand);
@@ -21,11 +23,13 @@
   --shadow: 0 8px 28px rgba(54, 25, 111, 0.045);
 }
 .btn.primary {
+  background: var(--accent-action);
+  border-color: var(--accent-action);
   color: var(--accent-ink);
 }
 .btn.primary:hover {
-  background: var(--accent-hover);
-  border-color: var(--accent-hover);
+  background: var(--accent-action-hover);
+  border-color: var(--accent-action-hover);
 }
 .btn.secondary:hover {
   background: var(--brand-hover);
@@ -192,9 +196,13 @@ body.dark .btn.secondary:hover {
 #landingView .landing-brand-mark {
   color: var(--accent-ink);
 }
+#landingView .btn.primary {
+  background: var(--accent-action);
+  border-color: var(--accent-action);
+}
 #landingView .btn.primary:hover {
-  background: var(--accent-hover);
-  border-color: var(--accent-hover);
+  background: var(--accent-action-hover);
+  border-color: var(--accent-action-hover);
 }
 #landingView .btn.secondary:hover {
   background: var(--brand-hover);
@@ -301,4 +309,20 @@ body.dark #landingView a:focus-visible,
 body.dark #landingView button:focus-visible,
 body.dark #landingView summary:focus-visible {
   outline-color: #b9a4ff;
+}
+
+/* Brand glyphs retain their recognizable color; chips are not live status badges. */
+.channel-logo[class] {
+  background: #fff;
+  border: 1px solid #e9e3f3;
+}
+.channel-logo img {
+  display: block;
+  width: min(24px, 70%);
+  height: min(24px, 70%);
+  object-fit: contain;
+}
+body.dark .channel-logo[class] {
+  background: #fff;
+  border-color: #ddd4e9;
 }

@@ -1,0 +1,112 @@
+[
+  {
+    "id": "ig",
+    "slug": "instagram",
+    "title": "Instagram",
+    "version": "16.38.0",
+    "source": "https://about.meta.com/brand/resources/instagram",
+    "guidelines": "https://about.meta.com/brand/resources/instagram",
+    "license": null,
+    "librarySource": "https://github.com/simple-icons/simple-icons"
+  },
+  {
+    "id": "tt",
+    "slug": "tiktok",
+    "title": "TikTok",
+    "version": "16.38.0",
+    "source": "https://tiktok.com",
+    "guidelines": null,
+    "license": null,
+    "librarySource": "https://github.com/simple-icons/simple-icons"
+  },
+  {
+    "id": "x",
+    "slug": "x",
+    "title": "X",
+    "version": "16.38.0",
+    "source": "https://x.com",
+    "guidelines": "https://about.x.com/en/who-we-are/brand-toolkit",
+    "license": null,
+    "librarySource": "https://github.com/simple-icons/simple-icons"
+  },
+  {
+    "id": "sc",
+    "slug": "snapchat",
+    "title": "Snapchat",
+    "version": "16.38.0",
+    "source": "https://www.snapchat.com/brand-guidelines",
+    "guidelines": "https://www.snapchat.com/brand-guidelines",
+    "license": null,
+    "librarySource": "https://github.com/simple-icons/simple-icons"
+  },
+  {
+    "id": "wa",
+    "slug": "whatsapp",
+    "title": "WhatsApp",
+    "version": "16.38.0",
+    "source": "https://about.meta.com/brand/resources/whatsapp/whatsapp-brand",
+    "guidelines": "https://about.meta.com/brand/resources/whatsapp/whatsapp-brand",
+    "license": null,
+    "librarySource": "https://github.com/simple-icons/simple-icons"
+  },
+  {
+    "id": "fb",
+    "slug": "facebook",
+    "title": "Facebook",
+    "version": "16.38.0",
+    "source": "https://about.meta.com/brand/resources/facebook/logo",
+    "guidelines": "https://about.meta.com/brand/resources/facebook/logo",
+    "license": null,
+    "librarySource": "https://github.com/simple-icons/simple-icons"
+  },
+  {
+    "id": "gbp",
+    "slug": "google",
+    "title": "Google",
+    "version": "16.38.0",
+    "source": "https://partnermarketinghub.withgoogle.com",
+    "guidelines": "https://about.google/brand-resource-center/brand-elements/",
+    "license": null,
+    "librarySource": "https://github.com/simple-icons/simple-icons"
+  },
+  {
+    "id": "ga4",
+    "slug": "googleanalytics",
+    "title": "Google Analytics",
+    "version": "16.38.0",
+    "source": "https://marketingplatform.google.com/intl/en_uk/about/analytics/",
+    "guidelines": null,
+    "license": null,
+    "librarySource": "https://github.com/simple-icons/simple-icons"
+  },
+  {
+    "id": "gads",
+    "slug": "googleads",
+    "title": "Google Ads",
+    "version": "16.38.0",
+    "source": "https://ads.google.com/home/",
+    "guidelines": null,
+    "license": null,
+    "librarySource": "https://github.com/simple-icons/simple-icons"
+  },
+  {
+    "id": "yt",
+    "slug": "youtube",
+    "title": "YouTube",
+    "version": "16.38.0",
+    "source": "https://www.youtube.com/howyoutubeworks/resources/brand-resources/#logos-icons-and-colors",
+    "guidelines": "https://www.youtube.com/howyoutubeworks/resources/brand-resources/#logos-icons-and-colors",
+    "license": null,
+    "librarySource": "https://github.com/simple-icons/simple-icons"
+  },
+  {
+    "id": "gsc",
+    "slug": "googlesearchconsole",
+    "title": "Google Search Console",
+    "version": "16.38.0",
+    "source": "https://search.google.com/search-console",
+    "guidelines": null,
+    "license": null,
+    "librarySource": "https://github.com/simple-icons/simple-icons"
+  }
+]

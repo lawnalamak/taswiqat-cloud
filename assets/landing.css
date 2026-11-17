@@ -1396,3 +1396,293 @@ body.dark #landingView .landing-step-number {
     scroll-behavior: auto !important;
   }
 }
+
+/* Merchant value and channels — real local brand assets, not connection indicators. */
+#landingView .landing-value-lead {
+  margin-top: 20px;
+  max-width: 520px;
+  color: var(--landing-text);
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1.95;
+}
+#landingView .landing-benefit-list {
+  padding: 0;
+  margin: 18px 0 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  color: var(--landing-muted);
+  font-size: 13px;
+}
+#landingView .landing-benefit-list li {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+#landingView .landing-benefit-list li::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--landing-navy);
+}
+#landingView .landing-hero-channel-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 23px;
+}
+#landingView .landing-channel-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 40px;
+  padding: 7px 10px;
+  border: 1px solid var(--landing-border);
+  border-radius: 10px;
+  background: #fff;
+  color: #291c42;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.6;
+}
+#landingView a.landing-channel-chip:hover {
+  border-color: var(--landing-navy);
+  box-shadow: 0 3px 12px rgba(68, 42, 217, 0.08);
+}
+#landingView .landing-channel-chip img,
+#landingView .landing-platform-list img {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  object-fit: contain;
+}
+#landingView .landing-platform-list li {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+#landingView .landing-mock-channels img {
+  display: block;
+  width: 23px;
+  height: 23px;
+  padding: 3px;
+  box-sizing: content-box;
+  border-radius: 6px;
+  background: #fff;
+  object-fit: contain;
+}
+#landingView .landing-channel-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+#landingView .landing-channel-card {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 25px;
+  border: 1px solid var(--landing-border);
+  border-radius: 14px;
+  background: var(--landing-surface);
+  scroll-margin-top: 24px;
+}
+#landingView .landing-channel-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
+  border: 1px solid #eee8f4;
+  border-radius: 13px;
+  background: #fff;
+}
+#landingView .landing-channel-icon img {
+  display: block;
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+#landingView .landing-channel-card h3 {
+  font-size: 18px;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+#landingView .landing-channel-card p {
+  color: var(--landing-muted);
+  font-size: 13px;
+  line-height: 1.95;
+}
+#landingView .landing-channel-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: auto;
+  padding-top: 3px;
+}
+#landingView .landing-channel-tags span {
+  padding: 3px 8px;
+  border-radius: 6px;
+  color: var(--landing-muted);
+  background: var(--landing-soft);
+  font-size: 10px;
+  line-height: 1.8;
+}
+#landingView .landing-channel-status {
+  color: var(--landing-gold-text);
+  font-size: 11px;
+  font-weight: 500;
+}
+#landingView .landing-channel-group-heading {
+  margin: 30px 0 18px;
+  font-size: 20px;
+}
+@media (max-width: 960px) {
+  #landingView .landing-channel-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 720px) {
+  #landingView .landing-value-lead {
+    font-size: 16px;
+    margin-top: 16px;
+  }
+  #landingView .landing-hero-channel-strip {
+    gap: 7px;
+    margin-top: 18px;
+  }
+  #landingView .landing-channel-card {
+    padding: 20px;
+  }
+}
+@media (max-width: 540px) {
+  #landingView .landing-channel-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  #landingView .landing-channel-card {
+    padding: 20px;
+    gap: 10px;
+  }
+  #landingView .landing-benefit-list {
+    font-size: 12px;
+    gap: 6px 14px;
+  }
+}
+
+#landingView .landing-channel-card-head {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  width: 100%;
+}
+#landingView .landing-channel-card-head > div {
+  min-width: 0;
+}
+#landingView .landing-channel-card .landing-channel-category {
+  font-size: 11px;
+  line-height: 1.8;
+  margin-top: 3px;
+}
+#landingView .landing-channels .landing-channel-status {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 18px 20px;
+  margin-bottom: 24px;
+  border: 1px solid var(--landing-border);
+  border-radius: 11px;
+  color: var(--landing-muted);
+  background: var(--landing-surface);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.95;
+}
+#landingView .landing-pending-badge {
+  flex-shrink: 0;
+  border: 1px solid var(--landing-border);
+  border-radius: 6px;
+  padding: 4px 9px;
+  background: var(--landing-soft);
+  color: var(--landing-text);
+  font-size: 11px;
+  white-space: nowrap;
+}
+#landingView .landing-upcoming-panel {
+  margin-top: 24px;
+  padding: 24px;
+  border: 1px solid var(--landing-border);
+  border-inline-start: 3px solid var(--landing-navy);
+  border-radius: 11px;
+  background: var(--landing-soft);
+}
+#landingView .landing-upcoming-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+#landingView .landing-upcoming-heading h3 {
+  font-size: 19px;
+  line-height: 1.65;
+}
+#landingView .landing-upcoming-panel > p {
+  color: var(--landing-muted);
+  font-size: 13px;
+  line-height: 1.95;
+}
+#landingView .landing-upcoming-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+  margin: 20px 0 0;
+  padding: 20px 0 0;
+  list-style: none;
+  border-top: 1px solid var(--landing-border);
+}
+#landingView .landing-upcoming-list li {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+}
+#landingView .landing-upcoming-list span {
+  color: var(--landing-muted);
+  font-size: 12px;
+  line-height: 1.9;
+}
+#landingView .landing-footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 24px;
+  margin-top: 18px;
+  color: var(--landing-muted);
+  font-size: 12px;
+}
+#landingView .landing-footer-links a:hover {
+  color: var(--landing-navy);
+}
+@media (max-width: 720px) {
+  #landingView .landing-channels .landing-channel-status {
+    flex-direction: column;
+    gap: 10px;
+    padding: 16px;
+    font-size: 11px;
+  }
+  #landingView .landing-upcoming-panel {
+    padding: 20px;
+  }
+  #landingView .landing-upcoming-list {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}

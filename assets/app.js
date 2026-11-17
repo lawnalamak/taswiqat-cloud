@@ -398,7 +398,7 @@ function channelNames(ids) {
     .join("، ");
 }
 function logo(c) {
-  return `<span class="channel-logo ${e(c.id)}" aria-hidden="true">${e(c.short)}</span>`;
+  return `<span class="channel-logo ${e(c.id)}" aria-hidden="true"><img src="assets/channels/${e(c.id)}.svg" width="24" height="24" alt="" decoding="async"></span>`;
 }
 function icon(name) {
   const paths = {
