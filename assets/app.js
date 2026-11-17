@@ -481,6 +481,7 @@ function showLanding() {
   guardLeave(showLandingNow);
 }
 function showLandingNow() {
+  window.TaswiqatAuthPortal?.unmount();
   $("landingView").hidden = false;
   $("appView").hidden = true;
   $("sessionView").hidden = true;
@@ -494,6 +495,7 @@ function showApp(view = "overview", replace = false) {
     showSessionPanel();
     return;
   }
+  window.TaswiqatAuthPortal?.unmount();
   const allowed =
     role === "employee" ? EMPLOYEE_VIEWS : [...NAV.map((n) => n.id), "compose"];
   currentView = allowed.includes(view) ? view : "overview";
@@ -523,12 +525,63 @@ function rememberInvite(token) {
   invitationInMemory = token;
   try { if (token) sessionStorage.setItem("taswiqat.invite", token); else sessionStorage.removeItem("taswiqat.invite"); } catch { /* Token only; no identity stored. */ }
 }
+let authView = "login";
+const AUTH_VIEWS = ["login", "register", "forgot", "reset", "verify"];
+function authRouteView(hash = location.hash) {
+  return hash.match(/^#auth\/(login|register|forgot|reset|verify)(?:\?[^#]*)?$/)?.[1] || "";
+}
+function openAuth(view = "login", setup = false) {
+  if (!AUTH_VIEWS.includes(view)) view = "login";
+  return guardLeave(async () => {
+    if (mode === "demo") { mode = "live"; clearPrivateState(); }
+    const remote = remoteAppURL("overview");
+    if (remote) { remote.hash = `#auth/${view}`; window.location.assign(remote.href); return; }
+    if (bootPromise) await bootPromise;
+    if (setup) setupAfterLogin = true;
+    const sensitive = ["reset", "verify"].includes(authRouteView());
+    if (sensitive && view === "login") await refreshSession();
+    if (sessionInfo?.authenticated && ["login", "register"].includes(view)) {
+      if (setup || view === "register") return startSetup(true);
+      if (await ensureWorkspace()) showApp(requestedView);
+      else showSessionPanel();
+      return;
+    }
+    authView = view;
+    history[sensitive ? "replaceState" : "pushState"](null, "", `#auth/${view}`);
+    showSessionPanel();
+    window.scrollTo(0, 0);
+  });
+}
+async function finishAccountLogin() {
+  api().clearSession();
+  history.replaceState(null, "", "#app/overview");
+  if (!(await refreshSession()) || !sessionInfo?.authenticated) {
+    showSessionPanel("لم تكتمل جلسة الحساب. أعد التحقق من الاتصال أو سجّل الدخول مجددًا.");
+    return;
+  }
+  workspaceLoaded = false;
+  if (pendingInvite()) { showSessionPanel(); return; }
+  if (setupAfterLogin) { await startSetup(); return; }
+  if (await ensureWorkspace()) showApp(requestedView);
+  else showSessionPanel();
+}
 function showSessionPanel(message = "") {
   $("landingView").hidden = true;
   $("appView").hidden = true;
   $("sessionView").hidden = false;
   toggleMenu(false);
   const authenticated = sessionInfo?.authenticated;
+  const view = authRouteView() || authView;
+  if (!remoteAppURL(requestedView) && !["loading", "error"].includes(sessionStatus) &&
+      (!authenticated || ["forgot", "reset", "verify"].includes(authRouteView())) && window.TaswiqatAuthPortal) {
+    window.TaswiqatAuthPortal.mount($("sessionPanel"), {
+      view, message, invite: Boolean(pendingInvite()), setup: setupAfterLogin,
+      onManusLogin: startLogin, onAuthenticated: finishAccountLogin,
+      onHome: showLanding, onDemo: startDemo, onNavigate: (next) => openAuth(next),
+    });
+    return;
+  }
+  window.TaswiqatAuthPortal?.unmount();
   let title = "مساحة عملك تبدأ بحسابك";
   let text = "سجّل الدخول الآمن للوصول إلى نشاطك ومحتواه. لا تُحمّل مسودات المتصفح القديمة داخل أي حساب تلقائيًا.";
   let actions = '<button class="btn primary" onclick="startLogin()">تسجيل الدخول الآمن ←</button>';
@@ -887,6 +940,7 @@ function startSetup(createNew = false) {
     if (bootPromise) await bootPromise;
     if (mode !== "demo" && (!sessionInfo?.authenticated || sessionStatus === "error" || pendingInvite())) {
       setupAfterLogin = true;
+      authView = "register";
       showSessionPanel();
       return;
     }
@@ -1622,6 +1676,16 @@ function captureInvite(hash) {
   try { rememberInvite(decodeURIComponent(match[1])); return true; } catch { return false; }
 }
 async function routeTo(hash) {
+  const accountView = authRouteView(hash);
+  if (accountView) {
+    if (mode === "demo") { mode = "live"; clearPrivateState(); }
+    const remote = remoteAppURL("overview");
+    if (remote) { remote.hash = hash; window.location.assign(remote.href); return; }
+    authView = accountView;
+    const providerFailed = new URLSearchParams(hash.split("?")[1] || "").get("error") === "provider_login_failed";
+    showSessionPanel(providerFailed ? "تعذّر إكمال تسجيل الدخول؛ حاول مجددًا أو استخدم طريقة الدخول المعتادة." : "");
+    return;
+  }
   if (captureInvite(hash)) {
     if (forwardRealEntry("overview")) return;
     if (mode === "demo") { mode = "live"; clearPrivateState(); }
@@ -1644,6 +1708,7 @@ async function routeTo(hash) {
     return;
   }
   if (pendingInvite() && sessionInfo?.authenticated) { showSessionPanel(); return; }
+  window.TaswiqatAuthPortal?.unmount();
   $("landingView").hidden = false;
   $("appView").hidden = true;
   $("sessionView").hidden = true;
@@ -1682,11 +1747,11 @@ function initializeCustomerApp() {
     sessionStatus = "remote";
     bootPromise = Promise.resolve(true);
   } else {
-    if (/^#(app|employee|invite)/.test(location.hash)) showSessionPanel();
+    if (/^#(app|employee|invite|auth)/.test(location.hash)) showSessionPanel();
     bootPromise = refreshSession();
   }
   bootPromise.then(() => {
-    if (setupAfterLogin && sessionInfo?.authenticated && !pendingInvite()) return startSetup();
+    if (setupAfterLogin && sessionInfo?.authenticated && !pendingInvite() && !authRouteView()) return startSetup();
     return restoreRoute();
   }).catch((error) => { sessionStatus = "error"; sessionError = error.message; showSessionPanel(); });
 }

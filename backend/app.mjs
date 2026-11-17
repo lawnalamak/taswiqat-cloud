@@ -4,7 +4,9 @@ import { pathToFileURL, fileURLToPath } from 'node:url';
 import path from 'node:path';
 import { createDatabase, publicUser } from './db.mjs';
 import { ApiError, fail, CHANNEL_IDS } from './validation.mjs';
-import { authMiddleware, csrfToken, checkCsrf, requireAdmin, mountAuthRoutes } from './auth.mjs';
+import { authMiddleware, csrfToken, checkCsrf, requireAdmin, mountAuthRoutes, authOrigin } from './auth.mjs';
+import { mountEmailAuthRoutes } from './auth-email.mjs';
+import { mountProviderAuthRoutes } from './auth-provider.mjs';
 import { mountWorkspaceRoutes } from './workspaces.mjs';
 import { mountStorageRoutes } from './storage.mjs';
 import { mountAdminRoutes, publicSettings } from './admin.mjs';
@@ -37,7 +39,7 @@ function rateLimiter({limit=120,windowMs=60000,maxEntries=10000}={}) {
     next();
   };
 }
-export function createApp({db=createDatabase(),env=process.env,distDir=path.join(root,'dist')}={}) {
+export function createApp({db=createDatabase(),env=process.env,distDir=path.join(root,'dist'),authServices={}}={}) {
   const app=express();
   app.locals.db=db;
   app.disable('x-powered-by');
@@ -50,6 +52,8 @@ export function createApp({db=createDatabase(),env=process.env,distDir=path.join
   });
   app.use(cookieParser());
   app.use('/api',rateLimiter());
+  app.use('/api/auth',express.json({limit:'8kb',strict:true,type:'application/json'}));
+  app.use('/api/auth/apple/callback',express.urlencoded({limit:'12kb',extended:false,parameterLimit:10,type:'application/x-www-form-urlencoded'}));
   app.use(express.json({limit:'16mb',strict:true,type:'application/json'}));
   app.get('/api/health',wrap(async(req,res)=>{const health=await readiness(db);res.status(health.ready?200:503).json(health);}));
   const authenticate=authMiddleware(db,env);
@@ -63,6 +67,8 @@ export function createApp({db=createDatabase(),env=process.env,distDir=path.join
     res.json({authenticated:true,user:publicUser(req.auth.user),workspaces:rows,workspaceId:rows.find(w=>w.status==='active')?.id || rows[0]?.id || null,csrfToken:csrfToken(req.auth.token,env)});
   }));
   mountAuthRoutes(app,db,env,wrap,authenticate);
+  mountEmailAuthRoutes(app,db,env,wrap,authServices);
+  mountProviderAuthRoutes(app,db,env,wrap,authServices);
   app.get('/api/public/settings',wrap(async(req,res)=>{
     res.set('Access-Control-Allow-Origin','*');
     res.set('Cache-Control','public, max-age=30');
@@ -94,6 +100,11 @@ export function createApp({db=createDatabase(),env=process.env,distDir=path.join
   app.use((req,res)=>res.status(404).json({error:{code:'not_found',message:'الصفحة غير موجودة'}}));
   app.use((error,req,res,next)=>{
     if (res.headersSent) return next(error);
+    if (req.path==='/api/auth/apple/callback') {
+      let origin='';try{origin=authOrigin(env);}catch{/* Fixed relative fallback, never Host. */}
+      res.set('Referrer-Policy','no-referrer');
+      return res.redirect(303,`${origin}/#auth/login?error=provider_login_failed`);
+    }
     const known=error instanceof ApiError;
     const status=known?error.status:error.type==='entity.too.large'?413:error.type==='entity.parse.failed'?400:error.status===404?404:500;
     const code=known?error.code:status===413?'request_too_large':status===400?'invalid_json':status===404?'not_found':'internal_error';

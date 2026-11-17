@@ -180,7 +180,7 @@ function freshAdminState() {
       {
         id: "basic",
         name: "الأساسية",
-        price: 199,
+        price: 49,
         channels: 2,
         members: 1,
         enabled: true,
@@ -188,7 +188,7 @@ function freshAdminState() {
       {
         id: "pro",
         name: "الاحترافية",
-        price: 449,
+        price: 99,
         channels: 5,
         members: 5,
         enabled: true,
@@ -196,7 +196,7 @@ function freshAdminState() {
       {
         id: "enterprise",
         name: "المؤسسات",
-        price: 899,
+        price: 199,
         channels: 11,
         members: 20,
         enabled: true,
@@ -1830,7 +1830,7 @@ function navigateAdminHash() {
     ? hash
     : "overview";
   if (next !== adminView && adminSiteDirty) {
-    if (!confirm("مغادرة محرر الموقع دون حفظ التغييرات المحلية؟")) {
+    if (!confirm("مغادرة النموذج دون حفظ التغييرات؟")) {
       history.replaceState(null, "", "#" + adminView);
       return;
     }
@@ -2231,19 +2231,19 @@ async function startAdminDemo() {
 function updateAdminModeChrome() {
   const live = adminMode === "server";
   document.getElementById("adminSafety").innerHTML = live
-    ? `<span class="admin-safety-mark" aria-hidden="true">!</span><div><strong>إدارة عبر الخادم — الجلسة تحقّق منها الخادم، والحفظ في قاعدة البيانات بعد تأكيده فقط.</strong><p>سجلات المستخدمين والأدوار لا تعني إرسال دعوة، وتتبع الاشتراكات لا يعني تحصيل دفعة. تكاملات القنوات والنشر مستقلة.</p></div>`
+    ? `<span class="admin-safety-mark" aria-hidden="true">!</span><div><strong>إدارة تسويقات — نفس حسابات العملاء والأنشطة والاشتراكات، من قاعدة بيانات واحدة.</strong><p>أي حساب موثّق من بوابة الدخول يظهر هنا. تعديلات الباقات والحالات والتسجيل تحفظ على الخادم وتؤثر في نظام العملاء؛ سجل الاشتراك لا يعني تحصيل دفعة.</p></div>`
     : `<span class="admin-safety-mark" aria-hidden="true">!</span><div><strong>معاينة إدارة غير محمية — لا تدخل بيانات عملاء حقيقية. الحفظ محلي على هذا المتصفح.</strong><p>لا مصادقة أو دفع أو اشتراكات فعلية أو مزامنة بين العملاء. الأدوار والحالات سجلات للمعاينة فقط.</p></div>`;
   document.getElementById("adminModeBadge").textContent = live
-    ? "بيانات الخادم"
+    ? "نظام تسويقات الموحّد"
     : "معاينة محلية فقط";
   document.getElementById("adminWorkspaceTitle").textContent = live
-    ? "إدارة الشركة المشغلة"
+    ? "إدارة منصة تسويقات"
     : "مساحة إدارة المعاينة";
   document.getElementById("adminWorkspaceSubtitle").textContent = live
     ? adminSession.user.name || adminSession.user.email
     : "سجلات محلية · بلا تسجيل دخول";
   document.getElementById("adminSideNote").textContent = live
-    ? "الوصول والحفظ يخضعان لصلاحيات الخادم. الربط والنشر والدفع لا يُفترض نجاحها من السجلات."
+    ? "هذه اللوحة تدير المشروع نفسه: حسابات العملاء، أنشطتهم، اشتراكاتهم، الباقات وإعدادات التسجيل."
     : "لا اتصال بالخادم، ولا صلاحيات فعلية. هذه اللوحة ليست بوابة دخول آمنة.";
   document.getElementById("adminLogoutButton").textContent = live
     ? "تسجيل الخروج"
@@ -2251,11 +2251,11 @@ function updateAdminModeChrome() {
 }
 const ADMIN_SERVER_DESCRIPTIONS = {
   overview:
-    "مؤشرات من سجلات الخادم الحالية. سجلات الاشتراك ليست دليلًا على الدفع، ولا نعرض إيرادات أو توافر API غير موثّق.",
+    "إدارة مشروع تسويقات نفسه: الحسابات الموثّقة، أنشطة العملاء، الاشتراكات والباقات والإعدادات من قاعدة بيانات واحدة.",
   workspaces:
     "إدارة سجلات أنشطة العملاء على الخادم. إضافة السجل تهيئة بيانات وليست إنشاء هوية دخول لمالكه.",
   users:
-    "هويات الدخول الموثّقة وأدوار النظام، حتى دون نشاط مرتبط. البريد والدور والعضوية للقراءة فقط؛ الحالة والصلاحيات يفرضهما الخادم، ولا دعوة مرسلة هنا.",
+    "حسابات بوابة تسويقات نفسها، بما فيها الحسابات الجديدة بعد توثيقها، حتى قبل إنشاء نشاط. تعليق الحساب يمنع دخوله وإجراءاته؛ البريد وهوية المدير محميان من التعديل.",
   subscriptions:
     "سجل وصول يدوي يُنشأ مع النشاط؛ الباقة والحالة تؤثران في الوصول والحصص على الخادم. لا دفع أو فواتير أو تحصيل أو تجديد آلي.",
   plans:
@@ -2270,12 +2270,12 @@ const ADMIN_SERVER_DESCRIPTIONS = {
     "أحداث التغيير التي يعيدها الخادم. الفاعل والتاريخ والسجل يحددها الخادم، لا هوية المعاينة.",
   site: "تعديل محتوى الموقع في قاعدة البيانات. الحفظ يؤثر في النسخة العامة التي تقرأ إعدادات الخادم، وليس في المتصفح وحده.",
   settings:
-    "إعدادات الإدارة ونسخة JSON من البيانات التي حمّلها الخادم. لا مفاتيح خاصة ولا مسح جماعي لقاعدة البيانات.",
+    "تحكم بإنشاء حسابات العملاء ومدة تجربة الأنشطة وبيانات الدعم، من إعدادات نفس النظام. لا مفاتيح خاصة ولا مسح جماعي لقاعدة البيانات.",
 };
 function renderAdminServerOverview() {
   const counts = [
     ["أنشطة العملاء", adminState.workspaces.length, "سجلات محفوظة في الخادم"],
-    ["سجلات المستخدمين", adminState.users.length, "ليست عدد جلسات مصادقة"],
+    ["حسابات تسويقات", adminState.users.length, "من بوابة الدخول نفسها"],
     [
       "سجلات الاشتراكات",
       adminState.subscriptions.length,
@@ -2304,7 +2304,7 @@ function renderAdminServerOverview() {
         `<li><strong>${adminEscape(x.message)}</strong><small>${adminEscape(x.actor)} · ${adminTime(x.date)}</small></li>`,
     );
   document.getElementById("adminView").innerHTML =
-    `<section class="card admin-overview-intro"><div><div class="eyebrow">الشركة المشغلة</div><h2>رؤية أوضح لإدارة الأنشطة.</h2><p>نظّم سجلات العملاء والمستخدمين وتتبّع اشتراكاتهم ودعمهم. لن يُعد أي تعديل محفوظًا قبل تأكيد الخادم، ولن تُفترض دفعة أو دعوة أو عملية نشر.</p></div>${adminAddButton("workspaces")}</section><div class="summary-grid">${counts.map(([label, value, detail]) => `<section class="card summary"><div class="summary-label">${label}</div><strong>${adminNumber(value)}</strong><small>${detail}</small></section>`).join("")}</div><div class="home-columns">${adminListPanel("أحدث الأنشطة", "workspaces", workspaces, "لا توجد سجلات أنشطة من الخادم.")}${adminListPanel("متابعة الدعم", "tickets", tickets, "لا توجد تذاكر مسجلة.")}</div>${adminListPanel("أحدث تغييرات الخادم", "audit", audit, "لا أحداث تغيير من الخادم بعد.")}`;
+    `<section class="card admin-overview-intro"><div><div class="eyebrow">إدارة منصة تسويقات</div><h2>هنا تدير تسويقات، لا نظامًا منفصلًا.</h2><p>الحساب الذي ينشئه العميل من بوابة الدخول يظهر في المستخدمين هنا. نشاطه واشتراكه مرتبطان بالحساب نفسه؛ وتعديلاتك على الباقات والحالات والتسجيل تطبّق في نظام العملاء بعد تأكيد الخادم.</p><div class="quick-actions"><a class="btn small ghost" href="#users">إدارة الحسابات</a><a class="btn small ghost" href="#subscriptions">إدارة الاشتراكات</a><a class="btn small ghost" href="#settings">التسجيل والتجربة</a></div></div>${adminAddButton("workspaces")}</section><div class="summary-grid">${counts.map(([label, value, detail]) => `<section class="card summary"><div class="summary-label">${label}</div><strong>${adminNumber(value)}</strong><small>${detail}</small></section>`).join("")}</div><div class="home-columns">${adminListPanel("أحدث الأنشطة", "workspaces", workspaces, "لم ينشئ العملاء أنشطة بعد؛ لا سجلات وهمية.")}${adminListPanel("متابعة الدعم", "tickets", tickets, "لا توجد تذاكر مسجلة.")}</div>${adminListPanel("أحدث تغييرات الخادم", "audit", audit, "لا أحداث تغيير من الخادم بعد.")}`;
 }
 function renderAdminServerPlans() {
   document.getElementById("adminView").innerHTML =
@@ -2318,8 +2318,34 @@ function renderAdminServerSite() {
     `<section class="card admin-site-form"><form id="adminSiteForm" onsubmit="saveAdminSite(event)" oninput="adminSiteDirty = true"><div class="notice info admin-form-note">حفظ فعلي في قاعدة البيانات. التعديلات تظهر في الموقع الذي يقرأ إعدادات الخادم بعد تحديثه. ليست معاينة محلية.</div><div class="two-cols">${adminInputField("heroLine1", "السطر الأول للعنوان", x.heroLine1, { max: 160 })}${adminInputField("heroLine2", "السطر الثاني للعنوان", x.heroLine2, { max: 160 })}</div>${adminInputField("heroDescription", "وصف الموقع", x.heroDescription, { textarea: true, max: 2000 })}${adminInputField("contactEmail", "بريد التواصل العام (اختياري)", x.contactEmail, { type: "email", max: 254 })}${adminInputField("notice", "تنبيه الموقع العام (اختياري)", x.notice, { textarea: true, max: 2000 })}<p id="adminSiteError" class="form-error" role="alert"></p><div class="admin-form-footer"><button id="adminSiteSave" class="btn primary" type="submit">حفظ محتوى الموقع في الخادم</button><a class="btn ghost" href="index.html" target="_blank" rel="noopener">عرض الموقع العام ↗</a></div></form></section>`;
 }
 function renderAdminServerSettings() {
+  adminSiteSnapshot = adminSnapshot;
+  adminSiteDirty = false;
+  const settings = adminState.settings || {};
   document.getElementById("adminView").innerHTML =
-    `<div class="admin-settings-columns"><section class="card"><h2>نسخة من سجلات الخادم الحالية</h2><p>ملف JSON غير مشفّر للنسخة التي حمّلتها، مع رقم إصدارها. قد يحتوي بيانات خاصة؛ احتفظ به في مكان آمن. لا استعادة مباشرة أو مسح جماعي لقاعدة البيانات من هذه الواجهة.</p><button class="btn secondary" type="button" onclick="exportAdminBackup()">تنزيل نسخة JSON</button><div class="notice info" style="margin-top:18px">النسخة تشمل سجلات الإدارة الحالية وليس كلمات مرور أو مفاتيح API. لا تستخدمها بديلًا عن نسخ الخادم الاحتياطية.</div></section><section class="card"><h2>المظهر ومصدر البيانات</h2><p>المصادقة وصلاحية الإدارة من جلسة الخادم، والحفظ باستخدام CSRF ورقم إصدار لمنع الكتابة فوق نسخة أحدث.</p><button class="btn ghost" type="button" onclick="toggleAdminTheme()">${adminCurrentTheme() === "dark" ? "المظهر الفاتح" : "المظهر الداكن"}</button><dl class="admin-storage-stats"><div><dt>مصدر البيانات</dt><dd>الخادم / قاعدة البيانات</dd></div><div><dt>رقم الإصدار</dt><dd>${adminEscape(adminSnapshot)}</dd></div><div><dt>الدفع والنشر</dt><dd>لا تنفيذ من هذه اللوحة</dd></div></dl><button class="btn ghost" type="button" onclick="refreshAdminWorkspace()">تحميل أحدث نسخة من الخادم</button></section></div>`;
+    `<section class="card admin-site-form"><h2>التسجيل والتجربة في تسويقات</h2><p>إعدادات تشغيل حقيقية لبوابة الحسابات وأنشطة العملاء، وليست مشروعًا أو بيانات منفصلة.</p><form id="adminSystemSettingsForm" onsubmit="saveAdminSystemSettings(event)" oninput="adminSiteDirty = true"><div class="two-cols">${adminSelectField("registrationEnabled", "إنشاء حسابات جديدة", settings.registrationEnabled !== false ? "true" : "false", [["true", "مسموح"], ["false", "متوقف مؤقتًا"]])}${adminInputField("trialDays", "مدة تجربة النشاط الجديد (أيام)", settings.trialDays ?? 14, { type: "number", required: true, min: 1, limit: 90, step: 1 })}</div>${adminInputField("supportHours", "بيانات وأوقات الدعم (اختياري)", settings.supportHours || "", { textarea: true, max: 500 })}<div class="notice info admin-form-note">إيقاف التسجيل يمنع إنشاء حسابات جديدة ولا يغلق دخول الحسابات القائمة. مدة التجربة تطبّق عند إنشاء نشاط جديد، ولا تغيّر نهاية الاشتراكات الحالية. تفعيل Google وApple وإرسال البريد يحتاج إعدادات مزوّدي الخدمة، وليس مفاتيح تُكتب هنا.</div><p id="adminSystemSettingsError" class="form-error" role="alert"></p><div class="admin-form-footer"><button id="adminSystemSettingsSave" class="btn primary" type="submit">حفظ إعدادات منصة تسويقات</button><a class="btn ghost" href="index.html#auth/register" target="_blank" rel="noopener">عرض بوابة الحسابات ↗</a></div></form></section><div class="admin-settings-columns"><section class="card"><h2>نسخة من سجلات الخادم الحالية</h2><p>ملف JSON غير مشفّر للنسخة التي حمّلتها، مع رقم إصدارها. قد يحتوي بيانات خاصة؛ احتفظ به في مكان آمن. لا استعادة مباشرة أو مسح جماعي لقاعدة البيانات من هذه الواجهة.</p><button class="btn secondary" type="button" onclick="exportAdminBackup()">تنزيل نسخة JSON</button><div class="notice info" style="margin-top:18px">النسخة تشمل سجلات الإدارة الحالية وليس كلمات مرور أو مفاتيح API. لا تستخدمها بديلًا عن نسخ الخادم الاحتياطية.</div></section><section class="card"><h2>المظهر ومصدر البيانات</h2><p>المصادقة وصلاحية الإدارة من جلسة الخادم، والحفظ باستخدام CSRF ورقم إصدار لمنع الكتابة فوق نسخة أحدث.</p><button class="btn ghost" type="button" onclick="toggleAdminTheme()">${adminCurrentTheme() === "dark" ? "المظهر الفاتح" : "المظهر الداكن"}</button><dl class="admin-storage-stats"><div><dt>مصدر البيانات</dt><dd>قاعدة بيانات تسويقات الموحّدة</dd></div><div><dt>رقم الإصدار</dt><dd>${adminEscape(adminSnapshot)}</dd></div><div><dt>الدفع والنشر</dt><dd>لا تنفيذ من هذه اللوحة</dd></div></dl><button class="btn ghost" type="button" onclick="refreshAdminWorkspace()">تحميل أحدث نسخة من الخادم</button></section></div>`;
+}
+async function saveAdminSystemSettings(event) {
+  event.preventDefault();
+  if (adminMode !== "server" || !adminReady || adminSaving) return;
+  const form = document.getElementById("adminSystemSettingsForm");
+  if (!form.reportValidity()) return;
+  const data = new FormData(form);
+  const registration = String(data.get("registrationEnabled") || "");
+  const trialDays = Number(data.get("trialDays"));
+  const supportHours = String(data.get("supportHours") || "").trim();
+  const error = document.getElementById("adminSystemSettingsError");
+  if (!["true", "false"].includes(registration) || !Number.isInteger(trialDays) || trialDays < 1 || trialDays > 90 || supportHours.length > 500) {
+    error.textContent = "اختر حالة التسجيل، ومدة تجربة صحيحة من 1 إلى 90 يومًا، وبيانات دعم لا تتجاوز 500 حرف.";
+    return;
+  }
+  error.textContent = "";
+  const saved = await commitAdminChange((next) => {
+    next.settings = { ...next.settings, registrationEnabled: registration === "true", trialDays, supportHours };
+  }, "تعديل إعدادات التسجيل والتجربة لمنصة تسويقات", adminSiteSnapshot);
+  if (saved) {
+    adminSiteDirty = false;
+    adminSiteSnapshot = adminSnapshot;
+  }
 }
 function renderAdminServerAudit() {
   document.getElementById("adminView").innerHTML = `<section class="card">${

@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="assets/landing.css">
   <link rel="stylesheet" href="assets/pulse.css">
   <link rel="stylesheet" href="assets/session.css">
+  <link rel="stylesheet" href="assets/auth-portal.css">
 </head>
 <body>
 <div id="landingView" class="landing" dir="rtl" lang="ar">
@@ -45,8 +46,11 @@
         >
           تبديل المظهر
         </button>
-        <button class="btn primary" type="button" onclick="startSetup()">
-          ابدأ إعداد نشاطك
+        <button class="btn ghost" type="button" onclick="openAuth('login')">
+          تسجيل الدخول
+        </button>
+        <button class="btn primary" type="button" onclick="openAuth('register', true)">
+          إنشاء حساب
         </button>
       </div>
     </div>
@@ -649,7 +653,7 @@
             <p class="landing-plan-kicker">لنشاط يبدأ بتنظيم حضوره</p>
             <h3>الأساسية</h3>
             <p class="landing-plan-price">
-              <strong dir="ltr">199</strong><span>ريال / شهر</span>
+              <strong dir="ltr">49</strong><span>ريال / شهر</span>
             </p>
             <p class="landing-plan-description">
               تصوّر لمساحة عمل تركّز على الأساسيات.
@@ -667,7 +671,7 @@
             <p class="landing-plan-kicker">لعمل يحتاج تنسيقًا أوسع</p>
             <h3>الاحترافية</h3>
             <p class="landing-plan-price">
-              <strong dir="ltr">449</strong><span>ريال / شهر</span>
+              <strong dir="ltr">99</strong><span>ريال / شهر</span>
             </p>
             <p class="landing-plan-description">
               تصوّر يجمع المحتوى والحملات وعمل الفريق.
@@ -689,7 +693,7 @@
             <p class="landing-plan-kicker">لأعمال تتعدد فرقها وعلاماتها</p>
             <h3>المؤسسات</h3>
             <p class="landing-plan-price">
-              <strong dir="ltr">899</strong><span>ريال / شهر</span>
+              <strong dir="ltr">199</strong><span>ريال / شهر</span>
             </p>
             <p class="landing-plan-description">
               تصوّر لتنظيم احتياجات الأعمال الأكبر.
@@ -1006,6 +1010,7 @@
 
   <script src="assets/deployment.js"></script>
   <script src="assets/client-api.js"></script>
+  <script src="assets/auth-portal.js"></script>
   <script src="assets/app.js"></script>
   <script src="assets/site-settings.js"></script>
 </body>

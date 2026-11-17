@@ -85,6 +85,7 @@ export function authMiddleware(db,env=process.env) {
       if (!rows.length) fail(401,'oauth_link_required','أكمل تسجيل الدخول لربط هويتك');
       const user=rows[0];
       if (user.open_id!==payload.openId) fail(401,'invalid_session','هوية جلسة غير مطابقة');
+      if ((payload.sv || 0)!==Number(user.session_version || 0)) fail(401,'invalid_session','الجلسة غير صالحة؛ سجّل الدخول مجددًا');
       if (user.status!=='active') fail(403,'user_suspended','الحساب موقوف');
       if (user.role==='admin') {
         const pins=await db.query('SELECT pinned_open_id FROM taswiqat_private_admin WHERE id=1');
@@ -139,6 +140,7 @@ export function mountAuthRoutes(app, db, env, wrap, authenticate) {
     if (typeof token.accessToken!=='string' || !token.accessToken) fail(502,'oauth_provider_error','لم يرسل المزوّد رمز دخول');
     const identity=await rpc(env,'GetUserInfo',{accessToken:token.accessToken});
     const info=parse(z.object({openId:z.string().min(1).max(255),name:z.string().max(160).default(''),email:z.union([emailSchema,z.literal('')]).default('')}).passthrough(),identity);
+    if (info.openId.startsWith('taswiqat:')) fail(409,'identity_collision','تعذر إكمال تسجيل الدخول');
     const user=await db.transaction(async tx=>{
       const pins=await tx.query('SELECT * FROM taswiqat_private_admin WHERE id=1 FOR UPDATE');
       const pin=pins[0];
@@ -160,10 +162,9 @@ export function mountAuthRoutes(app, db, env, wrap, authenticate) {
       if (old.length) await tx.query('UPDATE taswiqat_users SET name=?,email=?,email_authoritative=TRUE,role=?,updated_at=UTC_TIMESTAMP(3) WHERE id=?',[info.name,info.email,role,id]);
       else await tx.query('INSERT INTO taswiqat_users(id,open_id,name,email,email_authoritative,role) VALUES(?,?,?,?,TRUE,?)',[id,info.openId,info.name,info.email,role]);
       await audit(tx,id,'login',id,{});
-      return {id,role};
+      return {id,role,session_version:Number(old[0]?.session_version || 0)};
     });
-    const session=await new SignJWT({openId:info.openId,appId:env.MANUS_PROJECT_ID,origin:bound.origin,jti:newId('s')}).setProtectedHeader({alg:'HS256'}).setIssuedAt().setExpirationTime('7d').sign(secret(env));
-    res.cookie(SESSION_COOKIE,session,{...cookieOptions(bound.origin,env),maxAge:604800000});
+    await setSession(res,{...user,open_id:info.openId},bound.origin,env);
     const target=bound.target==='admin' && user.role==='admin' ? '/admin.html':'/#app';
     res.redirect(302,`${bound.origin}${target}`);
   }));
@@ -173,4 +174,71 @@ export function mountAuthRoutes(app, db, env, wrap, authenticate) {
     res.clearCookie(SESSION_COOKIE,cookieOptions(req.auth.payload.origin,env));
     res.json({ok:true});
   }));
+}
+
+export { secret as signingKey, safeEqual };
+export const PREAUTH_COOKIE='taswiqat_preauth';
+export const DEFAULT_AUTH_ORIGIN='https://taswiqat.manus.space';
+export function authOrigin(env=process.env) {
+  const origin=validateOrigin(env.TASWIQAT_AUTH_ORIGIN,{});
+  if (origin!==env.TASWIQAT_AUTH_ORIGIN) fail(503,'auth_not_configured','خدمة الحساب غير مهيأة');
+  return origin;
+}
+export function allowedAuthOrigin(value,env=process.env) {
+  const origin=validateOrigin(value,env);
+  const trusted=[DEFAULT_AUTH_ORIGIN,...(env.TASWIQAT_PUBLIC_ORIGINS || '').split(',').filter(Boolean).map(v=>validateOrigin(v.trim(),env))];
+  if (env.TASWIQAT_AUTH_ORIGIN) trusted.push(authOrigin(env));
+  if (!trusted.includes(origin)) fail(403,'origin_mismatch','مصدر الطلب غير مسموح');
+  return origin;
+}
+export async function setSession(res,user,origin,env=process.env) {
+  const token=await new SignJWT({openId:user.open_id,appId:env.MANUS_PROJECT_ID,origin,sv:Number(user.session_version || 0),jti:newId('s')})
+    .setProtectedHeader({alg:'HS256'}).setIssuedAt().setExpirationTime('7d').sign(secret(env));
+  res.cookie(SESSION_COOKIE,token,{...cookieOptions(origin,env),maxAge:604800000});
+  return token;
+}
+export async function issuePreauth(res,origin,env=process.env) {
+  allowedAuthOrigin(origin,env);
+  const token=await new SignJWT({kind:'preauth',appId:env.MANUS_PROJECT_ID,origin,nonce:randomBytes(32).toString('base64url')})
+    .setProtectedHeader({alg:'HS256'}).setIssuedAt().setExpirationTime('20m').sign(secret(env));
+  res.cookie(PREAUTH_COOKIE,token,{...cookieOptions(origin,env),maxAge:1200000});
+  return csrfToken(token,env);
+}
+export async function checkPreauth(req,env=process.env) {
+  const token=req.cookies?.[PREAUTH_COOKIE];
+  let payload;
+  try {
+    if (typeof token!=='string' || token.length>4096) throw new Error();
+    ({payload}=await jwtVerify(token,secret(env),{algorithms:['HS256']}));
+    if (payload.kind!=='preauth' || payload.appId!==env.MANUS_PROJECT_ID || !Number.isInteger(payload.exp) || !payload.nonce) throw new Error();
+    allowedAuthOrigin(payload.origin,env);
+  } catch { fail(403,'csrf_invalid','انتهت حماية الطلب؛ حدّث صفحة الدخول'); }
+  // Unlike legacy authenticated APIs, pre-auth requests must provide a browser origin.
+  if (!req.get('Origin') && !req.get('X-Taswiqat-Origin')) fail(403,'origin_mismatch','مصدر الطلب غير مسموح');
+  const previous=req.auth;
+  try { req.auth={token,payload}; checkCsrf(req,env); }
+  finally { req.auth=previous; }
+  return payload;
+}
+export async function registrationEnabled(tx) {
+  const rows=await tx.query('SELECT settings_json FROM taswiqat_site_settings WHERE id=1');
+  if (!rows.length) fail(503,'schema_not_ready','خدمة الحساب غير جاهزة');
+  const settings=typeof rows[0].settings_json==='string' ? JSON.parse(rows[0].settings_json):rows[0].settings_json;
+  return settings?.registrationEnabled!==false;
+}
+export async function accountSchemaReady(db) {
+  const rows=await db.query('SELECT MAX(version) AS version FROM taswiqat_migrations');
+  if (!(Number(rows[0]?.version)>=3)) fail(503,'schema_not_ready','خدمة الحساب غير جاهزة');
+}
+export async function accountEmailBlocked(tx,email) {
+  const pins=await tx.query('SELECT email,pinned_open_id FROM taswiqat_private_admin WHERE id=1 FOR UPDATE');
+  const users=email ? await tx.query('SELECT id,open_id,role,status FROM taswiqat_users WHERE LOWER(TRIM(email))=? FOR UPDATE',[email]):[];
+  const pin=pins[0];
+  return {pin,users,blocked:!!email && (String(pin?.email || '').trim().toLowerCase()===email || users.length>0)};
+}
+export function assertAlternateUser(user,pin,namespace) {
+  if (!user || user.status!=='active' || user.role!=='user' || pin?.pinned_open_id===user.open_id ||
+      (user.email && String(pin?.email || '').trim().toLowerCase()===user.email.trim().toLowerCase()) || !user.open_id?.startsWith(namespace)) {
+    fail(403,'account_unavailable','تعذر الدخول بهذه الطريقة؛ استخدم طريقة الدخول المعتادة');
+  }
 }

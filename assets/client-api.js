@@ -1,10 +1,11 @@
 "use strict";
 
-// Shared by the customer and operator interfaces. No identity or private state
-// is persisted in browser storage. All authority remains on the server.
+// No account identity, passwords or CSRF tokens are persisted in browser storage.
 (function installTaswiqatAPI() {
   let csrfToken = "";
   let sessionRequest = null;
+  let preAuthToken = "";
+  let authOptionsRequest = null;
 
   class APIError extends Error {
     constructor(message, status = 0, data = null) {
@@ -24,15 +25,23 @@
     }
     const method = (options.method || "GET").toUpperCase();
     const write = !["GET", "HEAD", "OPTIONS"].includes(method);
-    if (write && !csrfToken) await session();
-    if (write && !csrfToken) {
+    const preAuth = options.preAuth === true;
+    if (preAuth && (!write || !/^\/api\/auth\/email\/(register|verify|login|forgot|reset)$/.test(url.pathname))) {
+      throw new APIError("مسار حساب غير صالح.");
+    }
+    if (write && !preAuth && !csrfToken) await session();
+    if (write && !preAuth && !csrfToken) {
       window.dispatchEvent(new CustomEvent("taswiqat:session-expired"));
       throw new APIError("انتهت الجلسة أو تعذّر التحقق منها. سجّل الدخول مجددًا.", 401);
+    }
+    if (preAuth) {
+      await authOptions();
+      if (!preAuthToken) throw new APIError("تعذّر تجهيز حماية طلب الحساب. أعد المحاولة.");
     }
     const headers = new Headers(options.headers || {});
     headers.set("Accept", "application/json");
     if (write) {
-      headers.set("X-CSRF-Token", csrfToken);
+      headers.set("X-CSRF-Token", preAuth ? preAuthToken : csrfToken);
       headers.set("X-Taswiqat-Origin", window.location.origin);
     }
     let body;
@@ -51,7 +60,7 @@
     } catch (error) {
       throw new APIError(error.name === "AbortError"
         ? "انتهت مهلة الاتصال. لم نتأكد من نتيجة العملية؛ أعد تحميل البيانات قبل المحاولة مجددًا."
-        : "تعذّر الاتصال بالخادم. لم نتأكد من نتيجة العملية؛ بيانات المحرر بقيت في الذاكرة.");
+        : "تعذّر الاتصال بالخادم. لم نتأكد من نتيجة العملية؛ لم يُؤكد حفظ أي تغيير.");
     } finally {
       clearTimeout(timeout);
     }
@@ -61,10 +70,11 @@
       catch { throw new APIError("استجابة الخادم غير صالحة. لا توجد بيانات تجريبية بديلة.", response.status); }
     }
     if (!response.ok) {
-      if (response.status === 401) {
+      if (response.status === 401 && !preAuth) {
         csrfToken = "";
         window.dispatchEvent(new CustomEvent("taswiqat:session-expired"));
       }
+      if (preAuth && response.status === 403) preAuthToken = "";
       const message = data?.message || data?.error?.message ||
         (response.status === 409 ? "تغيّرت بيانات مساحة العمل في جلسة أخرى."
           : response.status === 403 ? "لا تملك صلاحية لهذه العملية، أو يلزم تجديد الجلسة."
@@ -84,6 +94,14 @@
     }).finally(() => { sessionRequest = null; });
     return sessionRequest;
   }
+  async function authOptions() {
+    if (authOptionsRequest) return authOptionsRequest;
+    authOptionsRequest = request(`/api/auth/options?origin=${encodeURIComponent(window.location.origin)}`).then((data) => {
+      preAuthToken = typeof data?.csrfToken === "string" ? data.csrfToken : "";
+      return data;
+    }).finally(() => { authOptionsRequest = null; });
+    return authOptionsRequest;
+  }
   const workspacePath = (workspaceId, suffix = "") =>
     `/api/workspaces/${encodeURIComponent(workspaceId)}${suffix}`;
 
@@ -96,6 +114,16 @@
     setCSRFToken: (token) => { csrfToken = typeof token === "string" ? token : ""; },
     clearSession: () => { csrfToken = ""; },
     authStart: (target = "app") => request(`/api/auth/start?origin=${encodeURIComponent(window.location.origin)}&target=${encodeURIComponent(target)}`),
+    authOptions,
+    authEmail: (action, body) => request(`/api/auth/email/${encodeURIComponent(action)}`, { method: "POST", body, preAuth: true }),
+    authProviderStart: async (provider) => {
+      if (!["google", "apple"].includes(provider)) throw new APIError("طريقة الدخول غير مدعومة.");
+      await authOptions();
+      if (!preAuthToken) throw new APIError("تعذّر تجهيز حماية طلب الدخول. أعد المحاولة.");
+      return request(`/api/auth/${provider}/start?origin=${encodeURIComponent(window.location.origin)}`, {
+        headers: { "X-CSRF-Token": preAuthToken, "X-Taswiqat-Origin": window.location.origin },
+      });
+    },
     logout: async () => {
       const result = await request("/api/auth/logout", { method: "POST", body: {} });
       csrfToken = "";

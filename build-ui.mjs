@@ -21,12 +21,14 @@ const html = `<!DOCTYPE html>
   <link rel="stylesheet" href="assets/landing.css">
   <link rel="stylesheet" href="assets/pulse.css">
   <link rel="stylesheet" href="assets/session.css">
+  <link rel="stylesheet" href="assets/auth-portal.css">
 </head>
 <body>
 ${landing}
 ${app}
   <script src="assets/deployment.js"></script>
   <script src="assets/client-api.js"></script>
+  <script src="assets/auth-portal.js"></script>
   <script src="assets/app.js"></script>
   <script src="assets/site-settings.js"></script>
 </body>

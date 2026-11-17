@@ -1,7 +1,7 @@
 import { pathToFileURL } from 'node:url';
 import { createDatabase } from './db.mjs';
-export const SCHEMA_VERSION = 2;
-export const TABLES = ['migrations','revision','private_admin','users','workspaces','memberships','invitations','plans','subscriptions','site_settings','tickets','audit','connections','media','oauth_nonces','revocations'].map(x => `taswiqat_${x}`);
+export const SCHEMA_VERSION = 3;
+export const TABLES = ['migrations','revision','private_admin','users','workspaces','memberships','invitations','plans','subscriptions','site_settings','tickets','audit','connections','media','oauth_nonces','revocations','auth_identities','auth_credentials','auth_tokens'].map(x => `taswiqat_${x}`);
 const suffix = ' ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci';
 const definitions = [
   `CREATE TABLE IF NOT EXISTS taswiqat_revision (id TINYINT PRIMARY KEY, version BIGINT UNSIGNED NOT NULL DEFAULT 0)`,
@@ -22,9 +22,14 @@ const definitions = [
 ];
 export const DEFAULT_SITE = { heroLine1: 'كل قنواتك.', heroLine2: 'مكان واحد.', heroDescription: 'مساحة موحّدة تساعد الأنشطة التجارية العربية على تنظيم قنواتها التسويقية ومحتواها وفريقها.', contactEmail: '', notice: '' };
 export const DEFAULT_PLANS = [
-  { id:'basic',name:'الأساسية',price:199,channels:2,members:1,active:true },
-  { id:'pro',name:'الاحترافية',price:449,channels:5,members:5,active:true },
-  { id:'enterprise',name:'المؤسسات',price:899,channels:11,members:20,active:true }
+  { id:'basic',name:'الأساسية',price:49,channels:2,members:1,active:true },
+  { id:'pro',name:'الاحترافية',price:99,channels:5,members:5,active:true },
+  { id:'enterprise',name:'المؤسسات',price:199,channels:11,members:20,active:true }
+];
+export const AUTH_DEFINITIONS = [
+  `CREATE TABLE IF NOT EXISTS taswiqat_auth_identities (provider VARCHAR(16) CHARACTER SET ascii COLLATE ascii_bin NOT NULL, subject VARBINARY(255) NOT NULL, user_id VARCHAR(80) NOT NULL, created_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3), PRIMARY KEY(provider,subject), UNIQUE KEY(user_id,provider))`,
+  `CREATE TABLE IF NOT EXISTS taswiqat_auth_credentials (login_email VARCHAR(254) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin PRIMARY KEY, user_id VARCHAR(80) NOT NULL UNIQUE, password_hash VARCHAR(300) CHARACTER SET ascii COLLATE ascii_bin NOT NULL, verified_at DATETIME(3) NOT NULL, updated_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3))`,
+  `CREATE TABLE IF NOT EXISTS taswiqat_auth_tokens (token_hash CHAR(64) CHARACTER SET ascii COLLATE ascii_bin PRIMARY KEY, purpose ENUM('verify','reset') NOT NULL, email VARCHAR(254) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL, name VARCHAR(160) NOT NULL DEFAULT '', user_id VARCHAR(80) NULL, session_version BIGINT UNSIGNED NULL, expires_at DATETIME(3) NOT NULL, delivered BOOLEAN NOT NULL DEFAULT FALSE, used BOOLEAN NOT NULL DEFAULT FALSE, created_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3), INDEX(email,purpose,expires_at), INDEX(expires_at))`
 ];
 export async function migrate(db) {
   const connection = await db.pool.getConnection();
@@ -47,6 +52,14 @@ export async function migrate(db) {
         if (!columns.length) await connection.query(`ALTER TABLE ${table} ADD COLUMN admin_json JSON NULL`);
       }
       await connection.query('INSERT IGNORE INTO taswiqat_migrations(version) VALUES(2)');
+    }
+    const [v3] = await connection.query('SELECT version FROM taswiqat_migrations WHERE version=3');
+    if (!v3.length) {
+      const [columns] = await connection.execute('SELECT COLUMN_NAME FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name=? AND column_name=?',['taswiqat_users','session_version']);
+      if (!columns.length) await connection.query('ALTER TABLE taswiqat_users ADD COLUMN session_version BIGINT UNSIGNED NOT NULL DEFAULT 0');
+      for (const ddl of AUTH_DEFINITIONS) await connection.query(ddl + suffix);
+      // Do not reseed plans, alter existing identity/pin records or change passwords.
+      await connection.query('INSERT IGNORE INTO taswiqat_migrations(version) VALUES(3)');
     }
     console.log(`taswiqat schema ready: v${SCHEMA_VERSION}`);
   } finally { await connection.query("SELECT RELEASE_LOCK('taswiqat_migrations')").catch(()=>{}); connection.release(); }

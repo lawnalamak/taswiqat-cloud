@@ -1,6 +1,6 @@
 # عقد Backend — تسويقات
 
-Node 22 ES modules، Express 4، MySQL مدارة. كل الخطأ JSON `{error:{code,message}}`، ولا توجد هويات أو تكاملات أو مدفوعات وهمية. نُفّذت المهاجرات v2 وإعداد المدير الخاص وتثبيت هويته بعد OAuth فعلي؛ لا حاجة لإعادتها عند تشغيل الخادم.
+Node 22 ES modules، Express 4، MySQL مدارة. كل الخطأ JSON `{error:{code,message}}`، ولا توجد هويات أو تكاملات أو مدفوعات وهمية. نُفّذت المهاجرات v3 الإضافية للحسابات في17 نوفمبر2026، مع بقاء بيانات المدير والمستخدمين والباقات دون إعادة تهيئة؛ لا حاجة لإعادتها عند تشغيل الخادم.
 
 الرابط التشغيلي المختصر منذ 17 نوفمبر 2026: https://taswiqat.manus.space، والإدارة /admin.html، وcallback تسجيل التطبيق https://taswiqat.manus.space/api/auth/callback. تغيير النطاق الفرعي لم يغير الإصدار المنشور869108e. في 11:33 UTC اعتمد المالك رؤية public لإزالة بوابة الإيميل قبل تصفح الصفحة؛ هذا لا ينشئ جلسة تطبيق ولا يفتح بيانات النشاط أو API الإدارة. الأصول في عقود OAuth أدناه تؤخذ من أصل المتصفح الفعلي، لا من اسم النطاق السابق في أدلة الاختبارات التاريخية.
 
@@ -20,6 +20,12 @@ Node 22 ES modules، Express 4، MySQL مدارة. كل الخطأ JSON `{error:
 - استثناء إعادة كتابة Origin في المعاينة محدود: عند HMAC صحيح وأصل HTTPS متحقق، يُقبل بدل الأصل الداخلي فقط إذا socket loopback وOrigin هو HTTP loopback مطابق Host تمامًا. null أو مصدر خارجي أو peer خارجي أو أصل متصفح مخالف يظل مرفوضًا. ليس هذا trust-proxy عامًا أو تجاوزًا للمصادقة.
 - `POST /api/auth/logout`: CSRF، `{ok:true}` مع إلغاء hash الجلسة DB ومسح cookie.
 
+### بوابة الحسابات المضافة
+
+`GET /api/auth/options?origin=<window.location.origin>` يعلن جاهزية Manus والبريد وGoogle وApple وإتاحة التسجيل، مع CSRF خاص بما قبل الدخول. واجهة عربية للحالات login/register/forgot/verify/reset، وشعارات أصلية محلية لقوقل وأبل. الطرق غير المهيّأة تعطّل بوضوح، ولا تختلق حسابًا أو رسالة مرسلة. عقود `POST /api/auth/email/{register,verify,login,forgot,reset}` و`GET /api/auth/{google,apple}/start` وcallbacks وإعدادات تفعيل البريد والمزوّدين موثقة في ACCOUNT_AUTH.md. يستخدم الجميع نفس `taswiqat_users` والجلسة وعضويات الأنشطة؛ لا قاعدة بيانات حسابات ثانية، ولا ترقية مدير أو دمج هوية بمجرد تطابق البريد.
+
+رمز verify/reset يُقرأ في ذاكرة متحكم الواجهة وتزال قيمته من hash/history، ولا يُكتب في التخزين. أحداث التنقل المزدوجة إلى الحالة نفسها تحتفظ بالمتحكم، بينما رمز جديد أو الخروج للحالة الأخرى يمحوان السابق. استقلال وسائل دخول الحساب عن OAuth قنوات التسويق محفوظ.
+
 ## مساحات العملاء
 
 معرّفات القنوات الحالية: `ig,tt,x,sc,wa,fb,gbp,ga4,gads,yt,gsc`، لا تكرار. state:
@@ -35,7 +41,7 @@ Node 22 ES modules، Express 4، MySQL مدارة. كل الخطأ JSON `{error:
 
 `author` هو معرّف المستخدم الحقيقي وليس `merchant`/`employee`. team مصفوفة مشتقة من memberships للقراءة؛ احتفظ بها كما أعادها GET عند PUT، إدارة الفريق عبر invitations فقط. website فارغ أو HTTPS. media dataURL allowlist JPEG/PNG/WebP/GIF/MP4/WebM، فحص magic signature وحجم decoded ≤3 MiB، لا SVG/HTML. media URL يجب أن يكون `/manus-storage/taswiqat/...` مفهرسًا ومملوكًا لنفس workspace؛ لا روابط عشوائية. حدود state12MiB، posts500، campaigns100، نص المنشور20000، الأعمال160/80/160/2048/2000.
 
-- `POST /api/workspaces {business,selected}` → 201 `{workspaceId,state,version:1,role:'owner'}` مع subscription trial14 يومًا basic، لا payment؛ 10 مساحات مملوكة كحد أقصى.
+- `POST /api/workspaces {business,selected}` → 201 `{workspaceId,state,version:1,role:'owner'}` مع subscription trial بمدة settings.trialDays (افتراضي14 يومًا) basic، لا payment؛ 10 مساحات مملوكة كحد أقصى.
 - `GET /api/workspaces/:id/state` → `{state,version,role,workspaceId,connections:[],subscription,plan}`.
 - `PUT /api/workspaces/:id/state {state,version}` → `{state,version}` canonical بعد تحقق الدور والحصص. 409 version_conflict لا كتابة عمياء. owner/manager يديران المحتوى؛ employee يغيّر منشوراته draft/review فقط، لا منشورات الآخرين أو المعتمد/المخطط، ولا author/إعدادات/campaigns/team/selected/theme. لا نشر خارجي لحالة planned.
 - `GET /api/workspaces/:id/team` للإدارة → `{members:[],invitations:[]}`.
@@ -46,7 +52,7 @@ Node 22 ES modules، Express 4، MySQL مدارة. كل الخطأ JSON `{error:
 
 ## الإدارة والموقع
 
-- `GET /api/public/settings` → `{site,plans}` من DB. defaults site: heroLine1 `كل قنواتك.`، heroLine2 `مكان واحد.`، وصف عربي عام، contactEmail/notice فارغان. basic199/2channels/1member، pro449/5/5، enterprise899/11/20. prices مقترحة وليست مدفوعات.
+- `GET /api/public/settings` → `{site,plans}` من DB. defaults site: heroLine1 `كل قنواتك.`، heroLine2 `مكان واحد.`، وصف عربي عام، contactEmail/notice فارغان. basic49/2channels/1member، pro99/5/5، enterprise199/11/20، حسب تعديل المالك المحفوظ فعليًا بالنسخة10. prices ليست إثبات مدفوعات.
 - `GET /api/admin/state` → `{state:{workspaces,users,subscriptions,plans,connections,operations,tickets,audit,site,settings},version}`، يتطلب admin من DB وpin. مصفوفات العملاء والإدارة هي نفس الصفوف وليست local mocks.
 - `PUT /api/admin/state {state,version}` → `{state,version}`؛ revision global يتغير مع جميع mutations، 409 عند أي تغيير متداخل، يحفظ تعديلات حقيقية ويعيد normalized snapshot. لا frontend-supplied openId أو إنشاء users، ولا ترقية admins؛ roles/openId/users email غير قابل للتغيير من payload. إضافة workspace provisioning تحتاج مالكًا موجودًا ذا بريد OAuth موثّق، لا first-login grants.
 
@@ -72,9 +78,11 @@ tickets `{id,workspaceId,userId,title,description,priority:'low'|'normal'|'high'
 
 settings المسموحة فقط `{theme?,supportHours?,registrationEnabled?,trialDays?}`؛ لا secrets. Site/plan defaults persistence INSERT IGNORE؛ admin changes تظهر في GET public. `GET /api/public/settings` وحده يحمل `Access-Control-Allow-Origin:*` (دون credentials) كي يقرأ موقع GitHub Pages التسويقي من APP_URL الفعلي. بقية API لا CORS عام.
 
+نموذج إعدادات المنصة في الإدارة الحقيقية يحفظ registrationEnabled وtrialDays (عدد صحيح1–90) وsupportHours (حتى500 حرف)، مع الإبقاء على المظهر وبقية مجموعات snapshot وCSRF/version. إيقاف التسجيل لا يمنع دخول الموجودين، ومدة التجربة تخص الأنشطة الجديدة ولا تعيد نهاية الاشتراكات السابقة. مؤشرات الإدارة وروابطها المباشرة تبين الحسابات والأنشطة والاشتراكات والباقات نفسها التي يستخدمها العملاء؛ ليست قوائم مستقلة.
+
 ## أدلة التحقق وحدود التسليم
 
-التنفيذ في `backend/app.mjs, db.mjs, auth.mjs, migrate.mjs, configure-admin.mjs, validation.mjs, workspaces.mjs, admin.mjs, storage.mjs`، ويصدّر `createApp`, `start`, والوحدات pure للاختبار. المهاجرات الحالية v1 (الجداول/defaults) وv2 (حقول admin_json إضافية)، والتهيئة منفصلة عن startup.
+التنفيذ في `backend/app.mjs, db.mjs, auth.mjs, auth-email.mjs, auth-provider.mjs, migrate.mjs, configure-admin.mjs, validation.mjs, workspaces.mjs, admin.mjs, storage.mjs`، ويصدّر `createApp`, `start`, والوحدات pure للاختبار. المهاجرات الحالية v1 (الجداول/defaults) وv2 (حقول admin_json إضافية) وv3 (session_version وجداول الحسابات الإضافية)، والتهيئة منفصلة عن startup. أدلة الإصدارات الأقدم أدناه تاريخية؛ الصحة الحالية للمصدر المعاد تشغيله schemaVersion3.
 
 اختبارات `tests/backend*.test.mjs` تغطي توقيع/expiry/appId JWT، fail-closed، عدم تصديق role/email claims، المستخدم المعلّق، منطق CLI تغيير المدير، CSRF ومطابقة origins، GET session logged-out، عزل workspace، 409 stale version دون UPDATE، الموظف/المؤلف، dataURL signatures والحجم والروابط الآمنة، حصص الدعوات، حماية آخر مدير، public CORS المحدود، static/path404، integration503. fixtures offline؛ الاختبار المتصل بقاعدة البيانات SELECT فقط. أحدث إعادة فحص لمسارات الإدارة والمصادقة المتأثرة نجحت18/18، بما فيها إصلاح بروكسي Origin واختبارات رفض التحايل.
 

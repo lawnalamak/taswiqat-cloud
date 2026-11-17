@@ -302,3 +302,61 @@ test('live messages describe server actions/quotas while demo keeps old limits a
   assert.equal(h.node('adminDialog').open, false, 'Demo still requires a workspace');
   assert.deepEqual(clone(h.run("adminStatusOptions('users')")).map(item => item[0]), ['active', 'inactive']);
 });
+
+test('unified system settings render backend bounds and explicit operational scope', async () => {
+  const h = await harness();
+  const state = clone(h.base);
+  state.settings = { theme: 'dark', registrationEnabled: false, trialDays: 21, supportHours: '<script>offline</script>' };
+  h.load(state); h.run('renderAdminServerSettings()');
+  const html = h.node('adminView').innerHTML;
+  assert.match(fieldTag(html, 'trialDays'), /min="1" max="90" step="1"/);
+  assert.match(fieldTag(html, 'supportHours'), /maxlength="500"/);
+  assert.match(selectHtml(html, 'registrationEnabled'), /value="false" selected/);
+  assert.match(html, /&lt;script&gt;offline&lt;\/script&gt;/);
+  assert.match(html, /لا تغيّر نهاية الاشتراكات الحالية/);
+  assert.match(html, /إيقاف التسجيل يمنع إنشاء حسابات جديدة/);
+  assert.equal(h.run('adminSiteSnapshot'), 7);
+  assert.equal(h.run('adminSiteDirty'), false);
+  assert.match(backend, /trialDays:z\.number\(\)\.int\(\)\.min\(1\)\.max\(90\)/);
+});
+
+test('unified settings save uses version/CSRF and preserves all other collections and theme', async () => {
+  const h = await harness(); const before = populated(h.base);
+  before.settings = { theme: 'dark', registrationEnabled: true, trialDays: 14, supportHours: 'قبل' };
+  h.load(before); h.run('renderAdminServerSettings(); adminSiteDirty = true;');
+  Object.assign(h.node('adminSystemSettingsForm'), { registrationEnabled: 'false', trialDays: '30', supportHours: ' بعد ' });
+  const canonical = clone(before);
+  Object.assign(canonical.settings, { registrationEnabled: false, trialDays: 30, supportHours: 'بعد' });
+  h.reply({ state: canonical, version: 8 });
+  await h.run('saveAdminSystemSettings({preventDefault(){}})');
+  const request = h.requests.find(item => item.options.method === 'PUT');
+  assert.ok(request); const payload = JSON.parse(request.options.body);
+  assert.equal(payload.version, 7);
+  assert.equal(request.options.headers['X-CSRF-Token'], 'offline-only');
+  assert.deepEqual(payload.state.settings, canonical.settings);
+  for (const key of Object.keys(before).filter(key => key !== 'settings')) assert.deepEqual(payload.state[key], before[key], key);
+  assert.equal(h.run('adminSiteSnapshot'), 8);
+  assert.equal(h.run('adminSiteDirty'), false);
+});
+
+test('invalid system settings and stale forms never write or discard unsaved input', async () => {
+  const h = await harness(); h.load(); h.run('renderAdminServerSettings(); adminSiteDirty = true;');
+  for (const fields of [
+    { registrationEnabled: 'false', trialDays: '0' },
+    { registrationEnabled: 'false', trialDays: '91' },
+    { registrationEnabled: 'false', trialDays: '1.5' },
+    { registrationEnabled: 'unknown', trialDays: '14' },
+    { registrationEnabled: 'true', trialDays: '14', supportHours: 'ع'.repeat(501) },
+  ]) {
+    Object.assign(h.node('adminSystemSettingsForm'), { supportHours: '', ...fields });
+    await h.run('saveAdminSystemSettings({preventDefault(){}})');
+    assert.equal(h.requests.filter(item => item.options.method === 'PUT').length, 0);
+    assert.equal(h.run('adminSiteDirty'), true);
+  }
+  Object.assign(h.node('adminSystemSettingsForm'), { registrationEnabled: 'true', trialDays: '14', supportHours: '' });
+  h.run('adminSnapshot = 8;');
+  await h.run('saveAdminSystemSettings({preventDefault(){}})');
+  assert.equal(h.requests.filter(item => item.options.method === 'PUT').length, 0);
+  assert.equal(h.run('adminSiteDirty'), true);
+  assert.equal(h.run('adminSiteSnapshot'), 7);
+});
