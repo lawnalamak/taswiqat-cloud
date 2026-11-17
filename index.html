@@ -3,268 +3,440 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>منصة تسويقات السحابية | Taswiqat Cloud</title>
+<title>منصة طوعك | تسويقات كلاود</title>
 <style>
-  :root { --primary:#0f766e; --primary-dark:#115e59; --bg:#f1f5f9; --card:#ffffff; --text:#0f172a; --muted:#64748b; --border:#e2e8f0; }
-  * { box-sizing:border-box; font-family:'Segoe UI',Tahoma,Arial,sans-serif; }
-  body { margin:0; background:var(--bg); color:var(--text); }
-  header { background:linear-gradient(135deg,#0f766e,#0d9488); color:#fff; padding:18px 24px; display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:12px; }
-  header h1 { margin:0; font-size:1.4rem; }
-  nav { display:flex; flex-wrap:wrap; gap:8px; }
-  .tab-btn { background:rgba(255,255,255,0.18); color:#fff; border:1px solid rgba(255,255,255,0.3); padding:8px 14px; border-radius:8px; cursor:pointer; font-weight:600; }
-  .tab-btn.active { background:#fff; color:var(--primary); }
-  main { max-width:1100px; margin:24px auto; padding:0 16px; }
-  .portal { display:none; }
-  .portal.active { display:block; }
-  .card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:20px; margin-bottom:20px; box-shadow:0 1px 3px rgba(0,0,0,0.05); }
-  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:16px; }
-  .plan { border:2px solid var(--border); border-radius:12px; padding:18px; text-align:center; background:#fff; }
-  .plan.featured { border-color:var(--primary); background:#f0fdfa; }
-  .price { font-size:1.8rem; font-weight:700; color:var(--primary); margin:10px 0; }
-  label { display:block; margin:10px 0 4px; font-weight:600; font-size:0.9rem; }
-  input,select,textarea { width:100%; padding:10px; border:1px solid var(--border); border-radius:8px; font-size:0.95rem; }
-  button.btn { background:var(--primary); color:#fff; border:none; padding:10px 18px; border-radius:8px; cursor:pointer; font-weight:600; margin-top:12px; }
-  button.btn:hover { background:var(--primary-dark); }
-  button.btn-outline { background:#fff; color:var(--primary); border:1px solid var(--primary); padding:6px 12px; border-radius:6px; cursor:pointer; }
-  .badge { display:inline-block; padding:4px 10px; border-radius:20px; font-size:0.8rem; font-weight:600; }
-  .badge.ok { background:#dcfce7; color:#166534; }
-  .badge.wait { background:#fef9c3; color:#854d0e; }
-  table { width:100%; border-collapse:collapse; margin-top:10px; }
-  th,td { padding:10px; border-bottom:1px solid var(--border); text-align:right; font-size:0.92rem; }
-  .msg { padding:10px; border-radius:8px; background:#dcfce7; color:#166534; margin-top:10px; display:none; }
+:root{--navy:#132a45;--navy-2:#1c3d63;--gold:#c89b3c;--red:#b91c1c;--bg:#f8fafc;--card:#ffffff;--text:#0f172a;--muted:#64748b;--border:#e2e8f0;--ok:#15803d;--ok-bg:#dcfce7}
+body.dark{--bg:#0b1220;--card:#131c2e;--text:#f1f5f9;--muted:#94a3b8;--border:#23314d;--ok:#4ade80;--ok-bg:#052e16}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',Tahoma,Arial,sans-serif}
+body{background:var(--bg);color:var(--text);line-height:1.6;transition:background .2s,color .2s}
+a{text-decoration:none;color:inherit}
+.container{max-width:1200px;margin:0 auto;padding:0 20px}
+.sadu-bar{height:14px;width:100%;background:repeating-linear-gradient(90deg,#991b1b 0 18px,#fff 18px 24px,#111827 24px 42px,#c89b3c 42px 48px,#fff 48px 54px);border-top:2px solid #111827;border-bottom:2px solid #111827}
+.topbar{background:var(--navy);color:#fff;position:sticky;top:0;z-index:50;box-shadow:0 2px 12px rgba(0,0,0,.18)}
+.topbar-inner{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 20px;max-width:1200px;margin:0 auto;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1.2rem}
+.brand-badge{background:var(--gold);color:#132a45;padding:4px 10px;border-radius:8px;font-size:.8rem;font-weight:800}
+.nav-links{display:flex;gap:18px;font-size:.95rem;color:#cbd5e1;flex-wrap:wrap}
+.nav-links a:hover{color:#fff}
+.nav-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.btn{border:none;border-radius:10px;padding:9px 16px;font-weight:700;cursor:pointer;font-size:.9rem;transition:.15s;display:inline-flex;align-items:center;gap:6px}
+.btn-primary{background:var(--gold);color:#132a45}
+.btn-primary:hover{filter:brightness(1.06)}
+.btn-outline{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.35)}
+.btn-outline:hover{background:rgba(255,255,255,.1)}
+.btn-dark{background:rgba(255,255,255,.12);color:#fff}
+.btn-card{background:var(--navy);color:#fff}
+body.dark .btn-card{background:var(--gold);color:#132a45}
+.hero{background:linear-gradient(135deg,#132a45 0%,#1e4068 100%);color:#fff;padding:56px 0 48px}
+.hero-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:36px;align-items:center}
+.hero h1{font-size:2.3rem;line-height:1.3;margin-bottom:14px}
+.hero p{color:#cbd5e1;font-size:1.05rem;margin-bottom:24px}
+.hero-cta{display:flex;gap:12px;flex-wrap:wrap}
+.phone-frame{background:#0f172a;border:6px solid #334155;border-radius:30px;padding:16px;box-shadow:0 20px 40px rgba(0,0,0,.35);max-width:360px;margin:0 auto}
+.phone-notch{width:90px;height:10px;background:#334155;border-radius:10px;margin:0 auto 12px}
+.phone-screen{background:var(--card);color:var(--text);border-radius:20px;overflow:hidden}
+.phone-head{background:var(--navy);color:#fff;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;font-size:.85rem;font-weight:700}
+.live-dot{width:8px;height:8px;background:#22c55e;border-radius:50%;display:inline-block;margin-left:5px}
+.phone-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:14px}
+.stat-mini{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:10px;text-align:center}
+.stat-mini strong{display:block;font-size:1.25rem;color:var(--navy)}
+body.dark .stat-mini strong{color:var(--gold)}
+.stat-mini span{font-size:.75rem;color:var(--muted)}
+section{padding:56px 0}
+.sec-title{text-align:center;margin-bottom:34px}
+.sec-title h2{font-size:1.8rem;margin-bottom:8px}
+.sec-title p{color:var(--muted)}
+.grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px}
+.grid-4{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:18px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px;box-shadow:0 4px 16px rgba(15,23,42,.04)}
+.icon-box{width:46px;height:46px;border-radius:12px;background:rgba(19,42,69,.1);color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:1.35rem;margin-bottom:12px;font-weight:800}
+body.dark .icon-box{background:rgba(200,155,60,.16);color:var(--gold)}
+.alt-row{display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:center;margin-bottom:44px}
+.alt-row.rev .alt-visual{order:-1}
+.chart-bars{display:flex;align-items:flex-end;gap:10px;height:140px;padding-top:16px}
+.bar{flex:1;background:linear-gradient(180deg,var(--gold),var(--navy));border-radius:8px 8px 0 0;position:relative;min-width:24px}
+.bar span{position:absolute;top:-22px;left:50%;transform:translateX(-50%);font-size:.75rem;font-weight:700}
+.plan{position:relative;text-align:center;display:flex;flex-direction:column;justify-content:space-between}
+.plan.popular{border:2px solid var(--gold);transform:translateY(-4px)}
+.plan-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--gold);color:#132a45;padding:3px 12px;border-radius:20px;font-size:.78rem;font-weight:800}
+.price{font-size:2.1rem;font-weight:800;color:var(--navy);margin:12px 0}
+body.dark .price{color:var(--gold)}
+.plan ul{list-style:none;text-align:right;margin:16px 0 22px;display:grid;gap:8px;font-size:.92rem;color:var(--muted)}
+.faq-item{border:1px solid var(--border);border-radius:12px;background:var(--card);margin-bottom:10px;overflow:hidden}
+.faq-q{width:100%;text-align:right;background:none;border:none;padding:16px 18px;font-weight:700;font-size:1rem;color:var(--text);cursor:pointer;display:flex;justify-content:space-between;align-items:center}
+.faq-a{padding:0 18px 16px;color:var(--muted);display:none;font-size:.94rem}
+.faq-item.open .faq-a{display:block}
+footer{background:var(--navy);color:#cbd5e1;padding:28px 0;text-align:center;font-size:.9rem}
+#dashboardView{display:none;min-height:calc(100vh - 64px)}
+.dash-shell{display:grid;grid-template-columns:250px 1fr;min-height:calc(100vh - 64px)}
+.dash-side{background:var(--navy);color:#fff;padding:20px 14px;display:flex;flex-direction:column;gap:8px}
+.role-pill{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;padding:9px 12px;border-radius:10px;cursor:pointer;text-align:right;font-weight:700;font-size:.88rem}
+.role-pill.active{background:var(--gold);color:#132a45;border-color:var(--gold)}
+.side-nav{margin-top:12px;display:grid;gap:6px}
+.side-btn{background:transparent;color:#cbd5e1;border:none;padding:9px 12px;border-radius:8px;text-align:right;cursor:pointer;font-size:.9rem}
+.side-btn.active,.side-btn:hover{background:rgba(255,255,255,.12);color:#fff}
+.dash-main{padding:24px;overflow-x:auto}
+.dash-head{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:20px}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:20px}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px}
+.kpi strong{font-size:1.5rem;display:block;color:var(--navy)}
+body.dark .kpi strong{color:var(--gold)}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:.78rem;font-weight:700}
+.badge-ok{background:var(--ok-bg);color:var(--ok)}
+.badge-warn{background:#fef3c7;color:#92400e}
+table{width:100%;border-collapse:collapse;font-size:.9rem}
+th,td{padding:10px 8px;border-bottom:1px solid var(--border);text-align:right}
+input,select,textarea{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:.9rem;margin-top:4px}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:100;padding:16px}
+.modal-bg.open{display:flex}
+.modal-box{background:var(--card);color:var(--text);border-radius:16px;max-width:440px;width:100%;padding:24px;border:1px solid var(--border)}
+@media(max-width:860px){.hero-grid,.alt-row,.dash-shell{grid-template-columns:1fr}.alt-row.rev .alt-visual{order:0}}
 </style>
-</head>
 <body>
-<header>
-  <div>
-    <h1>منصة تسويقات السحابية</h1>
-    <small>إدارة التسويق والنشر والردود للمتاجر والمطاعم</small>
-  </div>
-  <nav>
-    <button class="tab-btn active" onclick="showPortal('landing',this)">1. الواجهة والتسجيل</button>
-    <button class="tab-btn" onclick="showPortal('merchant',this)">2. لوحة التاجر</button>
-    <button class="tab-btn" onclick="showPortal('employee',this)">3. لوحة الموظف</button>
-    <button class="tab-btn" onclick="showPortal('admin',this)">4. لوحة Super Admin</button>
-  </nav>
+<header class="topbar">
+<div class="topbar-inner">
+<div class="brand"><span>منصة طوعك</span><span class="brand-badge">تسويقات كلاود</span></div>
+<nav class="nav-links" id="mainNav">
+<a href="#domains">المجالات</a>
+<a href="#services">الخدمات</a>
+<a href="#features">المزايا</a>
+<a href="#pricing">الباقات</a>
+<a href="#faq">الأسئلة الشائعة</a>
+</nav>
+<div class="nav-actions">
+<button class="btn btn-dark" onclick="toggleDark()">الوضع الليلي 🌙</button>
+<button class="btn btn-outline" onclick="openAuthModal('login')">دخول</button>
+<button class="btn btn-primary" onclick="openDash('merchant','overview')">ابدأ مجاناً</button>
+<button class="btn btn-outline" id="backSiteBtn" style="display:none" onclick="showLanding()">العودة للموقع</button>
+</div>
+</div>
 </header>
+<div class="sadu-bar"></div>
 
-<main>
-  <!-- البوابة 1: الواجهة التعريفية والتسجيل والباقات -->
-  <section id="landing" class="portal active">
-    <div class="card">
-      <h2>مرحباً بكم في منصة تسويقات</h2>
-      <p>منصة سحابية متكاملة لتمكين المتاجر والمطاعم من إدارة حسابات التواصل الاجتماعي، خرائط قوقل، فرق العمل، والردود على العملاء من مكان واحد.</p>
-    </div>
-    <div class="card">
-      <h3>الباقات الشهرية</h3>
-      <div class="grid">
-        <div class="plan">
-          <h4>الباقة الأساسية</h4>
-          <div class="price">199 ريال<small>/شهر</small></div>
-          <p>ربط منصة واحدة • موظف واحد • تقارير شهرية</p>
-          <button class="btn-outline" onclick="selectPlan('199')">اختيار الباقة</button>
-        </div>
-        <div class="plan featured">
-          <h4>باقة النمو</h4>
-          <div class="price">449 ريال<small>/شهر</small></div>
-          <p>ربط إنستغرام وتيك توك وخرائط قوقل • 3 موظفين • جدولة</p>
-          <button class="btn" onclick="selectPlan('449')">اختيار الباقة</button>
-        </div>
-        <div class="plan">
-          <h4>الباقة المتقدمة</h4>
-          <div class="price">899 ريال<small>/شهر</small></div>
-          <p>جميع المنصات • موظفون غير محدودين • دعم فوري</p>
-          <button class="btn-outline" onclick="selectPlan('899')">اختيار الباقة</button>
-        </div>
-      </div>
-    </div>
-    <div class="card">
-      <h3>نموذج تسجيل المتاجر والمطاعم</h3>
-      <form onsubmit="registerMerchant(event)">
-        <div class="grid">
-          <div><label>اسم المتجر أو المطعم</label><input id="regName" required placeholder="مثال: مطعم مذاق"></div>
-          <div><label>نوع النشاط</label><select id="regType"><option>مطعم</option><option>متجر إلكتروني</option><option>متجر تجزئة</option></select></div>
-          <div><label>الباقة الشهرية</label><select id="regPlan"><option value="199">الأساسية - 199 ريال</option><option value="449" selected>النمو - 449 ريال</option><option value="899">المتقدمة - 899 ريال</option></select></div>
-          <div><label>رقم الجوال</label><input id="regPhone" required placeholder="05xxxxxxxx"></div>
-        </div>
-        <button class="btn" type="submit">إرسال طلب التسجيل</button>
-        <div id="regMsg" class="msg"></div>
-      </form>
-    </div>
-  </section>
+<div id="landingView">
+<section class="hero">
+<div class="container hero-grid">
+<div>
+<h1>طوّع حضورك الرقمي في مكان واحد بالذكاء الاصطناعي</h1>
+<p>منصة سحابية متكاملة للمطاعم والمتاجر والأفراد: جدولة العروض، النشر الموحد على إنستغرام وتيك توك وسناب شات، وحارس تقييمات خرائط قوقل مع الرد التلقائي بالمنيو والأسعار.</p>
+<div class="hero-cta">
+<button class="btn btn-primary" onclick="openDash('merchant','overview')">ابدأ مجاناً الآن</button>
+<button class="btn btn-outline" onclick="openAuthModal('login')">دخول لوحة التحكم</button>
+<button class="btn btn-dark" onclick="openDash('employee','emp-queue')">بوابة الموظف</button>
+</div>
+</div>
+<div class="phone-frame">
+<div class="phone-notch"></div>
+<div class="phone-screen">
+<div class="phone-head"><span><span class="live-dot"></span>إحصائيات حية - طوعك</span><span>الآن</span></div>
+<div class="sadu-bar"></div>
+<div class="phone-stats">
+<div class="stat-mini"><strong id="heroViews">48,920</strong><span>مشاهدات اليوم</span></div>
+<div class="stat-mini"><strong>4.9 ★</strong><span>تقييم قوقل ماب</span></div>
+<div class="stat-mini"><strong id="heroReplies">312</strong><span>رد تلقائي بالمنيو</span></div>
+<div class="stat-mini"><strong>18</strong><span>عرض مجدول</span></div>
+</div>
+<div style="padding:0 14px 14px;font-size:.82rem;color:var(--muted)">
+<div style="background:var(--bg);padding:8px 10px;border-radius:10px;border:1px solid var(--border)">🤖 حارس قوقل ماب: تم الرد على 14 تقييم إيجابي تلقائياً</div>
+</div>
+</div>
+</div>
+</div>
+</section>
 
-  <!-- البوابة 2: لوحة التاجر الرئيسية -->
-  <section id="merchant" class="portal">
-    <div class="card">
-      <h3>ربط القنوات والمنصات</h3>
-      <div class="grid">
-        <div class="plan">
-          <h4>إنستغرام (Instagram)</h4>
-          <p id="st-ig"><span class="badge wait">غير متصل</span></p>
-          <button class="btn-outline" onclick="toggleConnect('st-ig','إنستغرام')">ربط / تحديث</button>
-        </div>
-        <div class="plan">
-          <h4>تيك توك (TikTok)</h4>
-          <p id="st-tt"><span class="badge wait">غير متصل</span></p>
-          <button class="btn-outline" onclick="toggleConnect('st-tt','تيك توك')">ربط / تحديث</button>
-        </div>
-        <div class="plan">
-          <h4>خرائط قوقل (Google Maps)</h4>
-          <p id="st-gm"><span class="badge ok">متصل</span></p>
-          <button class="btn-outline" onclick="toggleConnect('st-gm','خرائط قوقل')">ربط / تحديث</button>
-        </div>
-      </div>
-    </div>
-    <div class="card">
-      <h3>إنشاء حسابات الموظفين</h3>
-      <form onsubmit="addEmployee(event)" class="grid">
-        <div><label>اسم الموظف</label><input id="empName" required placeholder="مثال: سارة العتيبي"></div>
-        <div><label>البريد الإلكتروني</label><input id="empEmail" type="email" required placeholder="sara@store.sa"></div>
-        <div><label>الصلاحية</label><select id="empRole"><option>موظف نشر وردود</option><option>مشرف محتوى</option></select></div>
-        <div style="display:flex;align-items:flex-end;"><button class="btn" type="submit">إنشاء حساب الموظف</button></div>
-      </form>
-      <table>
-        <thead><tr><th>الاسم</th><th>البريد</th><th>الصلاحية</th><th>الحالة</th></tr></thead>
-        <tbody id="empTable">
-          <tr><td>أحمد الشمري</td><td>ahmed@taswiqat.sa</td><td>موظف نشر وردود</td><td><span class="badge ok">نشط</span></td></tr>
-        </tbody>
-      </table>
-    </div>
-  </section>
+<section id="domains">
+<div class="container">
+<div class="sec-title"><h2>حلول مصممة لمجالك</h2><p>واجهة مرنة تتكيف مع طبيعة نشاطك التجاري أو الشخصي</p></div>
+<div class="grid-3">
+<div class="card"><div class="icon-box">🍽️</div><h3>المطاعم والمقاهي</h3><p style="color:var(--muted);margin-top:8px">رد تلقائي بالمنيو والأسعار، حماية سمعة المطعم على خرائط قوقل، وجدولة عروض الوجبات اليومية.</p></div>
+<div class="card"><div class="icon-box">🛍️</div><h3>المتاجر والتجزئة</h3><p style="color:var(--muted);margin-top:8px">ربط إنستغرام وتيك توك وسناب شات، إدارة حملات المواسم، ومتابعة تفاعل العملاء من شاشة واحدة.</p></div>
+<div class="card"><div class="icon-box">✨</div><h3>الأفراد وصناع المحتوى</h3><p style="color:var(--muted);margin-top:8px">تنظيم جدول النشر الأسبوعي، تحليل نمو المتابعين، والرد السريع على استفسارات الجمهور.</p></div>
+</div>
+</div>
+</section>
 
-  <!-- البوابة 3: لوحة الموظف للنشر والردود -->
-  <section id="employee" class="portal">
-    <div class="card">
-      <h3>نشر محتوى جديد</h3>
-      <form onsubmit="publishPost(event)">
-        <label>نص المنشور</label>
-        <textarea id="postText" rows="3" required placeholder="اكتب عرض المتجر أو المطعم هنا..."></textarea>
-        <label>المنصات المستهدفة</label>
-        <select id="postPlatform">
-          <option>إنستغرام + تيك توك + خرائط قوقل</option>
-          <option>إنستغرام فقط</option>
-          <option>تيك توك فقط</option>
-          <option>خرائط قوقل فقط</option>
-        </select>
-        <button class="btn" type="submit">نشر الآن</button>
-      </form>
-      <ul id="postsList" style="margin-top:14px;"></ul>
-    </div>
-    <div class="card">
-      <h3>صندوق الردود والتعليقات</h3>
-      <table>
-        <thead><tr><th>العميل</th><th>التعليق / الاستفسار</th><th>المنصة</th><th>الرد</th></tr></thead>
-        <tbody>
-          <tr>
-            <td>خالد الحربي</td>
-            <td>هل يتوفر توصيل للمطعم اليوم؟</td>
-            <td>خرائط قوقل</td>
-            <td>
-              <input id="reply1" placeholder="اكتب الرد..." style="width:65%;display:inline-block;">
-              <button class="btn-outline" onclick="sendReply('reply1','res1')">إرسال</button>
-              <div id="res1" style="color:#166534;font-size:0.85rem;"></div>
-            </td>
-          </tr>
-          <tr>
-            <td>نورة الدوسري</td>
-            <td>كم سعر العرض الأسبوعي؟</td>
-            <td>إنستغرام</td>
-            <td>
-              <input id="reply2" placeholder="اكتب الرد..." style="width:65%;display:inline-block;">
-              <button class="btn-outline" onclick="sendReply('reply2','res2')">إرسال</button>
-              <div id="res2" style="color:#166534;font-size:0.85rem;"></div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </section>
+<section id="services" style="background:rgba(19,42,69,.03)">
+<div class="container">
+<div class="sec-title"><h2>الخدمات الأساسية الأربعة</h2><p>كل ما تحتاجه لإدارة التسويق الرقمي باحترافية</p></div>
+<div class="grid-4">
+<div class="card"><div class="icon-box">🔗</div><h3>الربط والنشر الموحد</h3><p style="color:var(--muted);font-size:.92rem;margin-top:6px">ربط مباشر مع إنستغرام، تيك توك، سناب شات، وخرائط قوقل بضغطة زر.</p></div>
+<div class="card"><div class="icon-box">🛡️</div><h3>حارس تقييمات قوقل ماب</h3><p style="color:var(--muted);font-size:.92rem;margin-top:6px">رصد فوري للتقييمات وصياغة ردود ذكية تحفظ سمعة علامتك التجارية.</p></div>
+<div class="card"><div class="icon-box">📋</div><h3>الرد التلقائي بالمنيو</h3><p style="color:var(--muted);font-size:.92rem;margin-top:6px">إرسال الأسعار وتفاصيل المنيو تلقائياً عند استفسار العملاء في التعليقات والرسائل.</p></div>
+<div class="card"><div class="icon-box">📅</div><h3>تقويم العروض والفريق</h3><p style="color:var(--muted);font-size:.92rem;margin-top:6px">جدولة العروض الشهرية وتوزيع الصلاحيات عبر حسابات مستقلة للموظفين.</p></div>
+</div>
+</div>
+</section>
 
-  <!-- البوابة 4: لوحة الشركة المشغلة Super Admin -->
-  <section id="admin" class="portal">
-    <div class="grid">
-      <div class="card"><h4>إجمالي المتاجر والمطاعم</h4><div class="price" id="statStores">2</div></div>
-      <div class="card"><h4>الاشتراكات النشطة</h4><div class="price">2</div></div>
-      <div class="card"><h4>الإيراد الشهري المتوقع</h4><div class="price" id="statRev">1348 ريال</div></div>
-    </div>
-    <div class="card">
-      <h3>إدارة المشتركين (Super Admin)</h3>
-      <table>
-        <thead><tr><th>اسم النشاط</th><th>النوع</th><th>الباقة</th><th>الحالة</th><th>إجراء</th></tr></thead>
-        <tbody id="adminTable">
-          <tr><td>مطعم الروابي</td><td>مطعم</td><td>449 ريال</td><td><span class="badge ok">نشط</span></td><td><button class="btn-outline" onclick="toggleStore(this)">تغيير الحالة</button></td></tr>
-          <tr><td>متجر أطياف</td><td>متجر إلكتروني</td><td>899 ريال</td><td><span class="badge ok">نشط</span></td><td><button class="btn-outline" onclick="toggleStore(this)">تغيير الحالة</button></td></tr>
-        </tbody>
-      </table>
-    </div>
-  </section>
+<section id="features">
+<div class="container">
+<div class="alt-row">
+<div>
+<h2>إحصائيات دقيقة ورسوم بيانية لحظية</h2>
+<p style="color:var(--muted);margin:12px 0 18px">راقب أداء حملاتك على جميع المنصات، وقارن نسب التفاعل والردود التلقائية ومعدل نمو التقييمات من لوحة التاجر الرئيسية.</p>
+<button class="btn btn-card" onclick="openDash('merchant','overview')">استعرض لوحة الإحصائيات</button>
+</div>
+<div class="card alt-visual">
+<strong>نمو التفاعل الأسبوعي</strong>
+<div class="chart-bars">
+<div class="bar" style="height:45%"><span>45%</span></div>
+<div class="bar" style="height:62%"><span>62%</span></div>
+<div class="bar" style="height:58%"><span>58%</span></div>
+<div class="bar" style="height:80%"><span>80%</span></div>
+<div class="bar" style="height:95%"><span>95%</span></div>
+</div>
+</div>
+</div>
+<div class="alt-row rev">
+<div>
+<h2>حسابات موظفين مستقلة وصلاحيات مرنة</h2>
+<p style="color:var(--muted);margin:12px 0 18px">أنشئ حساباً مستقلاً لكل موظف لتنفيذ النشر والرد على العملاء دون كشف بيانات الدفع أو الإعدادات الحساسة للتاجر.</p>
+<button class="btn btn-card" onclick="openDash('employee','emp-queue')">تجربة لوحة الموظف</button>
+</div>
+<div class="card alt-visual">
+<strong>صلاحيات الفريق</strong>
+<div style="display:grid;gap:10px;margin-top:12px">
+<div style="display:flex;justify-content:space-between"><span>سارة الحربي (نشر وردود)</span><span class="badge badge-ok">نشط</span></div>
+<div style="display:flex;justify-content:space-between"><span>خالد العتيبي (مراقب قوقل ماب)</span><span class="badge badge-ok">نشط</span></div>
+<div style="display:flex;justify-content:space-between"><span>نورة القحطاني (جدولة عروض)</span><span class="badge badge-warn">محدود</span></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<section id="pricing" style="background:rgba(19,42,69,.03)">
+<div class="container">
+<div class="sec-title"><h2>الباقات الشهرية</h2><p>اختر الباقة المناسبة لحجم أعمالك مع تجربة مجانية فورية</p></div>
+<div class="grid-3">
+<div class="card plan">
+<div><h3>الباقة الأساسية</h3><div class="price">199 <small style="font-size:.9rem">ريال/شهر</small></div>
+<ul><li>✓ ربط منصتين اجتماعيتين</li><li>✓ تقويم جدولة العروض (15 عرض/شهر)</li><li>✓ الرد التلقائي بالمنيو والأسعار</li><li>✓ حساب موظف واحد</li></ul></div>
+<button class="btn btn-card" style="width:100%;justify-content:center" onclick="openDash('merchant','overview')">ابدأ بالباقة الأساسية</button>
+</div>
+<div class="card plan popular">
+<span class="plan-badge">الأكثر طلباً</span>
+<div><h3>الباقة الاحترافية</h3><div class="price">449 <small style="font-size:.9rem">ريال/شهر</small></div>
+<ul><li>✓ ربط إنستغرام، تيك توك، سناب شات، قوقل ماب</li><li>✓ حارس تقييمات قوقل ماب بالذكاء الاصطناعي</li><li>✓ جدولة عروض غير محدودة</li><li>✓ 5 حسابات موظفين بصلاحيات مخصصة</li></ul></div>
+<button class="btn btn-primary" style="width:100%;justify-content:center" onclick="openDash('merchant','overview')">اشترك الآن مجاناً</button>
+</div>
+<div class="card plan">
+<div><h3>باقة المؤسسات</h3><div class="price">899 <small style="font-size:.9rem">ريال/شهر</small></div>
+<ul><li>✓ فروع وعلامات تجارية متعددة</li><li>✓ صلاحيات متقدمة ولوحة تقارير شاملة</li><li>✓ تخصيص كامل للردود الذكية بالمنيو</li><li>✓ حسابات موظفين غير محدودة ودعم أولوية</li></ul></div>
+<button class="btn btn-card" style="width:100%;justify-content:center" onclick="openDash('superadmin','sa-overview')">استكشف لوحة المؤسسات</button>
+</div>
+</div>
+</div>
+</section>
+
+<section id="faq">
+<div class="container" style="max-width:820px">
+<div class="sec-title"><h2>الأسئلة الشائعة</h2><p>إجابات سريعة حول منصة طوعك</p></div>
+<div class="faq-item open"><button class="faq-q" onclick="this.parentElement.classList.toggle('open')">كيف يعمل حارس تقييمات قوقل ماب بالذكاء الاصطناعي؟<span>+</span></button><div class="faq-a">يرصد الحارس أي تقييم جديد على خرائط قوقل ويقترح رداً احترافياً مخصصاً بحسب درجة التقييم ونص التعليق، مع إمكانية الاعتماد التلقائي أو اليدوي.</div></div>
+<div class="faq-item"><button class="faq-q" onclick="this.parentElement.classList.toggle('open')">هل يمكن للموظف النشر والرد دون الوصول لحسابات التاجر المالية؟<span>+</span></button><div class="faq-a">نعم، توفر منصة طوعك لوحة موظف مستقلة بصلاحيات محددة للنشر والردود فقط، بينما تبقى إعدادات الاشتراك والربط محصورة في لوحة التاجر.</div></div>
+<div class="faq-item"><button class="faq-q" onclick="this.parentElement.classList.toggle('open')">هل يدعم الرد التلقائي إرسال المنيو والأسعار؟<span>+</span></button><div class="faq-a">نعم، بمجرد إدخال أصناف المنيو والأسعار في لوحة التاجر، يرد النظام تلقائياً على استفسارات العملاء بالكلمات المفتاحية أو الأسعار المحدثة.</div></div>
+</div>
+</section>
+
+<div class="sadu-bar"></div>
+<footer><div class="container">© 2026 منصة طوعك | تسويقات كلاود — جميع الحقوق محفوظة</div></footer>
+</div>
+
+<div id="dashboardView">
+<div class="dash-shell">
+<aside class="dash-side">
+<div style="font-weight:800;font-size:.95rem;margin-bottom:6px">التبديل بين البوابات</div>
+<button class="role-pill active" id="pill-merchant" onclick="switchRole('merchant')">🏪 لوحة التاجر الرئيسية</button>
+<button class="role-pill" id="pill-employee" onclick="switchRole('employee')">👤 لوحة الموظف المستقلة</button>
+<button class="role-pill" id="pill-superadmin" onclick="switchRole('superadmin')">👑 الشركة المشغلة Super Admin</button>
+<div class="side-nav" id="sideNav"></div>
+</aside>
+
+<main class="dash-main">
+<div class="dash-head">
+<div><h2 id="dashTitle">لوحة التاجر الرئيسية</h2><p style="color:var(--muted);font-size:.9rem" id="dashSub">إدارة المنصات، العروض، حارس التقييمات، المنيو، والموظفين</p></div>
+<span class="badge badge-ok" id="dashPlanBadge">الباقة الاحترافية - 449 ريال</span>
+</div>
+
+<div class="tab-panel active" id="tab-overview">
+<div class="kpi-grid">
+<div class="kpi"><span>إجمالي المشاهدات</span><strong>142,800</strong></div>
+<div class="kpi"><span>تقييم قوقل ماب</span><strong>4.9 ★</strong></div>
+<div class="kpi"><span>الردود الذكية بالمنيو</span><strong>1,240</strong></div>
+<div class="kpi"><span>العروض المجدولة</span><strong id="kpiOffers">4</strong></div>
+</div>
+<div class="card">
+<h3 style="margin-bottom:10px">الرسوم البيانية لتفاعل المنصات (آخر 5 أيام)</h3>
+<div class="chart-bars">
+<div class="bar" style="height:55%"><span>إنستغرام 55%</span></div>
+<div class="bar" style="height:82%"><span>تيك توك 82%</span></div>
+<div class="bar" style="height:70%"><span>سناب شات 70%</span></div>
+<div class="bar" style="height:90%"><span>قوقل ماب 90%</span></div>
+<div class="bar" style="height:76%"><span>الرد الآلي 76%</span></div>
+</div>
+</div>
+</div>
+
+<div class="tab-panel" id="tab-channels">
+<div class="grid-4" id="channelsGrid"></div>
+</div>
+
+<div class="tab-panel" id="tab-calendar">
+<div class="card" style="margin-bottom:16px">
+<h3>جدولة عرض جديد في التقويم</h3>
+<div class="grid-3" style="margin-top:10px">
+<div><label>عنوان العرض</label><input id="offerTitle" placeholder="مثال: خصم 25% على وجبات الغداء"></div>
+<div><label>التاريخ</label><input id="offerDate" type="date" value="2026-11-20"></div>
+<div><label>المنصة</label><select id="offerPlat"><option>إنستغرام + تيك توك</option><option>سناب شات</option><option>خرائط قوقل</option></select></div>
+</div>
+<button class="btn btn-primary" style="margin-top:12px" onclick="addOffer()">إضافة للتقويم</button>
+</div>
+<div class="card"><h3>تقويم العروض المجدولة</h3><table id="offersTable"><thead><tr><th>العرض</th><th>التاريخ</th><th>المنصة</th><th>الحالة</th></tr></thead><tbody></tbody></table></div>
+</div>
+
+<div class="tab-panel" id="tab-guard">
+<div class="card" style="margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+<div><h3>🛡️ حارس تقييمات قوقل ماب بالذكاء الاصطناعي</h3><p style="color:var(--muted);font-size:.88rem">رصد فوري وصياغة ردود ذكية تحفظ سمعة النشاط</p></div>
+<button class="btn btn-primary" id="guardToggleBtn" onclick="toggleGuard()">الحارس الذكي: مفعّل ✓</button>
+</div>
+<div id="reviewsList" style="display:grid;gap:12px"></div>
+</div>
+
+<div class="tab-panel" id="tab-menu">
+<div class="card" style="margin-bottom:16px">
+<h3>إضافة صنف للرد التلقائي بالمنيو والأسعار</h3>
+<div class="grid-3" style="margin-top:10px">
+<div><label>اسم الصنف</label><input id="menuName" placeholder="مثال: برجر سدو مشوي"></div>
+<div><label>السعر (ريال)</label><input id="menuPrice" type="number" placeholder="38"></div>
+<div><label>التصنيف</label><input id="menuCat" placeholder="الوجبات الرئيسية"></div>
+</div>
+<button class="btn btn-primary" style="margin-top:12px" onclick="addMenuItem()">حفظ في المنيو</button>
+</div>
+<div class="card" style="margin-bottom:16px"><h3>قائمة المنيو والأسعار النشطة</h3><table id="menuTable"><thead><tr><th>الصنف</th><th>التصنيف</th><th>السعر</th></tr></thead><tbody></tbody></table></div>
+<div class="card"><h3>محاكاة الرد التلقائي</h3><div style="display:flex;gap:8px;margin-top:8px"><input id="simQuery" placeholder="اكتب استفسار عميل مثل: كم سعر المنيو؟"><button class="btn btn-card" onclick="simReply()">اختبار الرد</button></div><p id="simOutput" style="margin-top:10px;color:var(--ok);font-weight:700"></p></div>
+</div>
+
+<div class="tab-panel" id="tab-employees">
+<div class="card" style="margin-bottom:16px">
+<h3>إضافة حساب موظف جديد</h3>
+<div class="grid-3" style="margin-top:10px">
+<div><label>اسم الموظف</label><input id="empName" placeholder="الاسم الكامل"></div>
+<div><label>الدور الوظيفي</label><input id="empRole" placeholder="منسق نشر وردود"></div>
+<div><label>الصلاحيات</label><select id="empPerm"><option>نشر + ردود العملاء</option><option>ردود قوقل ماب فقط</option><option>نشر + تعديل المنيو</option></select></div>
+</div>
+<button class="btn btn-primary" style="margin-top:12px" onclick="addEmployee()">إنشاء حساب موظف</button>
+</div>
+<div class="card"><h3>حسابات الموظفين وصلاحياتهم</h3><table id="empTable"><thead><tr><th>الموظف</th><th>الدور</th><th>الصلاحية</th><th>الحالة</th></tr></thead><tbody></tbody></table></div>
+</div>
+
+<div class="tab-panel" id="tab-emp-queue">
+<div class="kpi-grid">
+<div class="kpi"><span>مهام النشر اليوم</span><strong>6</strong></div>
+<div class="kpi"><span>رسائل بانتظار الرد</span><strong id="empPendingCount">3</strong></div>
+<div class="kpi"><span>تم إنجازه اليوم</span><strong>19</strong></div>
+</div>
+<div class="card" style="margin-bottom:16px">
+<h3>نشر سريع عبر القنوات المصرح بها</h3>
+<div class="grid-2" style="margin-top:10px">
+<select id="empPostPlat"><option>إنستغرام</option><option>تيك توك</option><option>سناب شات</option></select>
+<input id="empPostText" placeholder="اكتب نص العرض أو المنشور...">
+</div>
+<button class="btn btn-primary" style="margin-top:10px" onclick="empPublish()">نشر فوري</button>
+<p id="empPostStatus" style="margin-top:8px;color:var(--ok);font-weight:700"></p>
+</div>
+<div class="card"><h3>صندوق الردود الموحد للموظف</h3><div id="empMsgs" style="display:grid;gap:10px;margin-top:10px"></div></div>
+</div>
+
+<div class="tab-panel" id="tab-sa-overview">
+<div class="kpi-grid">
+<div class="kpi"><span>إجمالي التجار النشطين</span><strong>318</strong></div>
+<div class="kpi"><span>الإيرادات الشهرية</span><strong>142,600 ريال</strong></div>
+<div class="kpi"><span>حالة واجهات الربط API</span><strong>99.9% ✓</strong></div>
+<div class="kpi"><span>تذاكر الدعم المفتوحة</span><strong>2</strong></div>
+</div>
+<div class="card"><h3>إدارة المشتركين والباقات (الشركة المشغلة)</h3><table id="saTable"><thead><tr><th>النشاط التجاري</th><th>الباقة</th><th>الاشتراك</th><th>الحالة</th><th>إجراء</th></tr></thead><tbody></tbody></table></div>
+</div>
 </main>
+</div>
+</div>
+
+<div class="modal-bg" id="authModal">
+<div class="modal-box">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><h3>تسجيل الدخول لمنصة طوعك</h3><button class="btn" onclick="closeAuthModal()">✕</button></div>
+<p style="color:var(--muted);font-size:.9rem;margin-bottom:14px">اختر البوابة للدخول المباشر واستعراض كامل الصلاحيات:</p>
+<div style="display:grid;gap:10px">
+<button class="btn btn-primary" style="justify-content:center" onclick="closeAuthModal();openDash('merchant','overview')">دخول لوحة التاجر الرئيسية</button>
+<button class="btn btn-card" style="justify-content:center" onclick="closeAuthModal();openDash('employee','emp-queue')">دخول لوحة الموظف المستقلة</button>
+<button class="btn btn-outline" style="color:var(--text);border-color:var(--border);justify-content:center" onclick="closeAuthModal();openDash('superadmin','sa-overview')">دخول الشركة المشغلة (Super Admin)</button>
+</div>
+</div>
+</div>
 
 <script>
-  function showPortal(id, btn) {
-    document.querySelectorAll('.portal').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-    btn.classList.add('active');
-  }
-  function selectPlan(val) {
-    document.getElementById('regPlan').value = val;
-    document.getElementById('regName').focus();
-  }
-  function registerMerchant(e) {
-    e.preventDefault();
-    const name = document.getElementById('regName').value;
-    const type = document.getElementById('regType').value;
-    const plan = document.getElementById('regPlan').value;
-    const msg = document.getElementById('regMsg');
-    msg.style.display = 'block';
-    msg.textContent = 'تم تسجيل "' + name + '" بنجاح في باقة ' + plan + ' ريال شهرياً!';
-    const tr = document.createElement('tr');
-    tr.innerHTML = '<td>' + name + '</td><td>' + type + '</td><td>' + plan + ' ريال</td><td><span class="badge ok">نشط</span></td><td><button class="btn-outline" onclick="toggleStore(this)">تغيير الحالة</button></td>';
-    document.getElementById('adminTable').appendChild(tr);
-    document.getElementById('statStores').textContent = document.getElementById('adminTable').rows.length;
-    e.target.reset();
-  }
-  function toggleConnect(id, label) {
-    const el = document.getElementById(id);
-    const connected = el.textContent.includes('متصل') && !el.textContent.includes('غير');
-    el.innerHTML = connected ? '<span class="badge wait">غير متصل</span>' : '<span class="badge ok">متصل (' + label + ')</span>';
-  }
-  function addEmployee(e) {
-    e.preventDefault();
-    const n = document.getElementById('empName').value;
-    const em = document.getElementById('empEmail').value;
-    const r = document.getElementById('empRole').value;
-    const tr = document.createElement('tr');
-    tr.innerHTML = '<td>' + n + '</td><td>' + em + '</td><td>' + r + '</td><td><span class="badge ok">نشط</span></td>';
-    document.getElementById('empTable').appendChild(tr);
-    e.target.reset();
-  }
-  function publishPost(e) {
-    e.preventDefault();
-    const txt = document.getElementById('postText').value;
-    const plat = document.getElementById('postPlatform').value;
-    const li = document.createElement('li');
-    li.textContent = 'تم النشر على (' + plat + '): ' + txt;
-    document.getElementById('postsList').prepend(li);
-    e.target.reset();
-  }
-  function sendReply(inputId, resId) {
-    const val = document.getElementById(inputId).value.trim();
-    if (!val) return;
-    document.getElementById(resId).textContent = 'تم إرسال الرد: ' + val;
-    document.getElementById(inputId).value = '';
-  }
-  function toggleStore(btn) {
-    const badge = btn.closest('tr').querySelector('.badge');
-    if (badge.textContent === 'نشط') {
-      badge.textContent = 'معلق';
-      badge.className = 'badge wait';
-    } else {
-      badge.textContent = 'نشط';
-      badge.className = 'badge ok';
-    }
-  }
+const channels=[{id:'ig',name:'إنستغرام',on:true},{id:'tt',name:'تيك توك',on:true},{id:'gm',name:'خرائط قوقل',on:true},{id:'sc',name:'سناب شات',on:false}];
+const offers=[{t:'عرض الغداء العائلي 25%',d:'2026-11-20',p:'إنستغرام + تيك توك',s:'مجدول'},{t:'باقة القهوة المسائية',d:'2026-11-22',p:'سناب شات',s:'مجدول'}];
+const reviews=[{u:'عبدالله السالم',stars:'★★★★★',txt:'الخدمة ممتازة والأكل ساخن وسريع',ai:'شكراً لك أستاذ عبدالله! سعدنا بخدمتك ونتطلع لزيارتك القادمة.',done:false},{u:'فهد الدوسري',stars:'★★★☆☆',txt:'المكان جميل لكن الانتظار كان طويلاً قليلاً',ai:'نعتذر منك أستاذ فهد عن وقت الانتظار، نعمل على تسريع الخدمة في زيارتك القادمة.',done:false}];
+const menuItems=[{n:'برجر طوعك الخاص',c:'الوجبات',p:42},{n:'موهيتو رمان',c:'المشروبات',p:18},{n:'بوكس الجمعات',c:'العروض',p:129}];
+const employees=[{n:'سارة الحربي',r:'منسقة محتوى',p:'نشر + ردود العملاء',on:true},{n:'خالد العتيبي',r:'مراقب تقييمات',p:'ردود قوقل ماب فقط',on:true}];
+const empMsgs=[{from:'@nora_k',txt:'هل يوجد توصيل لحي الياسمين وكم سعر البوكس؟',replied:false},{from:'@ahmed_99',txt:'ما أوقات الدوام اليوم؟',replied:false}];
+const saMerchants=[{name:'مطاعم نجد الأصيلة',plan:'449 ريال',sub:'شهري',active:true},{name:'متجر سدو للقهوة',plan:'199 ريال',sub:'شهري',active:true},{name:'مجموعة المذاق',plan:'899 ريال',sub:'مؤسسات',active:true}];
+let guardOn=true;
+
+function toggleDark(){document.body.classList.toggle('dark')}
+function openAuthModal(){document.getElementById('authModal').classList.add('open')}
+function closeAuthModal(){document.getElementById('authModal').classList.remove('open')}
+function showLanding(){document.getElementById('landingView').style.display='block';document.getElementById('dashboardView').style.display='none';document.getElementById('mainNav').style.display='flex';document.getElementById('backSiteBtn').style.display='none'}
+function openDash(role,tab){document.getElementById('landingView').style.display='none';document.getElementById('dashboardView').style.display='block';document.getElementById('mainNav').style.display='none';document.getElementById('backSiteBtn').style.display='inline-flex';switchRole(role,tab)}
+function switchRole(role,tab){
+document.querySelectorAll('.role-pill').forEach(b=>b.classList.remove('active'));
+document.getElementById('pill-'+role).classList.add('active');
+const nav=document.getElementById('sideNav');
+if(role==='merchant'){
+document.getElementById('dashTitle').textContent='لوحة التاجر الرئيسية';
+document.getElementById('dashSub').textContent='الإحصائيات، ربط المنصات، تقويم العروض، حارس قوقل ماب، المنيو، والموظفين';
+document.getElementById('dashPlanBadge').textContent='الباقة الاحترافية - 449 ريال';
+nav.innerHTML=`<button class="side-btn active" onclick="showTab('overview',this)">📊 الإحصائيات والرسوم</button><button class="side-btn" onclick="showTab('channels',this)">🔗 ربط المنصات</button><button class="side-btn" onclick="showTab('calendar',this)">📅 تقويم وجدولة العروض</button><button class="side-btn" onclick="showTab('guard',this)">🛡️ حارس تقييمات قوقل</button><button class="side-btn" onclick="showTab('menu',this)">📋 الرد التلقائي بالمنيو</button><button class="side-btn" onclick="showTab('employees',this)">👥 حسابات الموظفين</button>`;
+showTab(tab||'overview');
+}else if(role==='employee'){
+document.getElementById('dashTitle').textContent='لوحة الموظف المستقلة';
+document.getElementById('dashSub').textContent='النشر السريع والرد على استفسارات العملاء حسب الصلاحية';
+document.getElementById('dashPlanBadge').textContent='صلاحية موظف: نشر + ردود';
+nav.innerHTML=`<button class="side-btn active" onclick="showTab('emp-queue',this)">💬 النشر وصندوق الردود</button><button class="side-btn" onclick="showTab('calendar',this)">📅 جدول العروض</button>`;
+showTab(tab||'emp-queue');
+}else{
+document.getElementById('dashTitle').textContent='لوحة الشركة المشغلة (Super Admin)';
+document.getElementById('dashSub').textContent='إدارة التجار، الباقات الشهرية (199/449/899)، ومراقبة النظام';
+document.getElementById('dashPlanBadge').textContent='صلاحية مدير النظام الأعلى';
+nav.innerHTML=`<button class="side-btn active" onclick="showTab('sa-overview',this)">👑 إدارة التجار والنظام</button>`;
+showTab(tab||'sa-overview');
+}
+renderAll();
+}
+function showTab(id,btn){
+document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+const el=document.getElementById('tab-'+id);if(el)el.classList.add('active');
+if(btn){document.querySelectorAll('.side-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}
+}
+function renderAll(){
+document.getElementById('channelsGrid').innerHTML=channels.map((c,i)=>`<div class="card"><h3>${c.name}</h3><p style="margin:8px 0"><span class="badge ${c.on?'badge-ok':'badge-warn'}">${c.on?'متصل ✓':'غير متصل'}</span></p><button class="btn btn-card" onclick="channels[${i}].on=!channels[${i}].on;renderAll()">${c.on?'إلغاء الربط':'ربط الآن'}</button></div>`).join('');
+document.querySelector('#offersTable tbody').innerHTML=offers.map(o=>`<tr><td>${o.t}</td><td>${o.d}</td><td>${o.p}</td><td><span class="badge badge-ok">${o.s}</span></td></tr>`).join('');
+document.getElementById('kpiOffers').textContent=offers.length;
+document.getElementById('reviewsList').innerHTML=reviews.map((r,i)=>`<div class="card"><div style="display:flex;justify-content:space-between"><strong>${r.u}</strong><span>${r.stars}</span></div><p style="margin:6px 0;color:var(--muted)">${r.txt}</p><div style="background:var(--bg);padding:10px;border-radius:8px;font-size:.88rem;border:1px solid var(--border)"><strong>رد الذكاء الاصطناعي المقترح:</strong> ${r.ai}</div><button class="btn ${r.done?'btn-dark':'btn-primary'}" style="margin-top:10px" onclick="reviews[${i}].done=true;renderAll()">${r.done?'تم إرسال الرد ✓':'اعتماد وإرسال الرد'}</button></div>`).join('');
+document.querySelector('#menuTable tbody').innerHTML=menuItems.map(m=>`<tr><td>${m.n}</td><td>${m.c}</td><td>${m.p} ريال</td></tr>`).join('');
+document.querySelector('#empTable tbody').innerHTML=employees.map((e,i)=>`<tr><td>${e.n}</td><td>${e.r}</td><td>${e.p}</td><td><button class="badge ${e.on?'badge-ok':'badge-warn'}" style="border:none;cursor:pointer" onclick="employees[${i}].on=!employees[${i}].on;renderAll()">${e.on?'نشط':'موقوف'}</button></td></tr>`).join('');
+document.getElementById('empMsgs').innerHTML=empMsgs.map((m,i)=>`<div style="padding:10px;border:1px solid var(--border);border-radius:10px"><div style="display:flex;justify-content:space-between"><strong>${m.from}</strong><span class="badge ${m.replied?'badge-ok':'badge-warn'}">${m.replied?'تم الرد':'بانتظار الرد'}</span></div><p style="margin:6px 0">${m.txt}</p>${m.replied?'':`<button class="btn btn-card" onclick="empMsgs[${i}].replied=true;renderAll()">إرسال رد بالمنيو والأسعار</button>`}</div>`).join('');
+document.getElementById('empPendingCount').textContent=empMsgs.filter(m=>!m.replied).length;
+document.querySelector('#saTable tbody').innerHTML=saMerchants.map((m,i)=>`<tr><td>${m.name}</td><td>${m.plan}</td><td>${m.sub}</td><td><span class="badge ${m.active?'badge-ok':'badge-warn'}">${m.active?'نشط':'معلق'}</span></td><td><button class="btn btn-card" onclick="saMerchants[${i}].active=!saMerchants[${i}].active;renderAll()">تبديل الحالة</button></td></tr>`).join('');
+}
+function addOffer(){const t=document.getElementById('offerTitle').value;if(!t)return;offers.unshift({t,d:document.getElementById('offerDate').value,p:document.getElementById('offerPlat').value,s:'مجدول'});document.getElementById('offerTitle').value='';renderAll()}
+function toggleGuard(){guardOn=!guardOn;document.getElementById('guardToggleBtn').textContent=guardOn?'الحارس الذكي: مفعّل ✓':'الحارس الذكي: متوقف'}
+function addMenuItem(){const n=document.getElementById('menuName').value,p=document.getElementById('menuPrice').value,c=document.getElementById('menuCat').value||'عام';if(!n||!p)return;menuItems.push({n,c,p});document.getElementById('menuName').value='';document.getElementById('menuPrice').value='';renderAll()}
+function simReply(){const q=document.getElementById('simQuery').value;const list=menuItems.map(m=>`${m.n} (${m.p} ريال)`).join(' • ');document.getElementById('simOutput').textContent=`🤖 رد طوعك التلقائي على "${q||'استفسارك'}": أهلاً بك! إليك قائمة المنيو والأسعار المحدثة: ${list}`;}
+function addEmployee(){const n=document.getElementById('empName').value,r=document.getElementById('empRole').value||'موظف',p=document.getElementById('empPerm').value;if(!n)return;employees.push({n,r,p,on:true});document.getElementById('empName').value='';renderAll()}
+function empPublish(){const t=document.getElementById('empPostText').value,p=document.getElementById('empPostPlat').value;if(!t)return;document.getElementById('empPostStatus').textContent=`✓ تم نشر "${t}" بنجاح على ${p}`;document.getElementById('empPostText').value=''}
+renderAll();
 </script>
 </body>
 </html>
+</head>
