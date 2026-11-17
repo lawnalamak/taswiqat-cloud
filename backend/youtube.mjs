@@ -553,8 +553,10 @@ export async function runYouTubeMaintenance(db,env={},services={}) {
   if (!await schemaReady(db)) return {...counts,disabled:true};
   counts.disabled=!(await configurationForDb(db,env)).ready;
   const now=nowOf(services),batch=Number.isInteger(services.batchSize)?Math.min(100,Math.max(1,services.batchSize)):25;
+  // MySQL execute rejects a bound LIMIT here. Only the normalized integer batch
+  // (1..100) and its positive remaining budgets may be embedded; values stay bound.
   try {
-    const expired=await db.query('SELECT id FROM taswiqat_youtube_attempts WHERE expires_at<=? ORDER BY expires_at LIMIT ?',[date(now),batch]);
+    const expired=await db.query(`SELECT id FROM taswiqat_youtube_attempts WHERE expires_at<=? ORDER BY expires_at LIMIT ${batch}`,[date(now)]);
     for (const a of expired) {
       const removed=await db.transaction(async tx=>{
         const current=(await tx.query('SELECT * FROM taswiqat_youtube_attempts WHERE id=? FOR UPDATE',[a.id]))[0];
@@ -563,7 +565,7 @@ export async function runYouTubeMaintenance(db,env={},services={}) {
       });
       if (removed) counts.attemptsExpired++;else counts.skipped++;
     }
-    const expiredRevocations=await db.query('SELECT * FROM taswiqat_youtube_revocations WHERE (expires_at<=? OR requested_at<=?) AND (lease_until IS NULL OR lease_until<=?) ORDER BY expires_at LIMIT ?',[date(now),date(now-7*DAY),date(now),batch]);
+    const expiredRevocations=await db.query(`SELECT * FROM taswiqat_youtube_revocations WHERE (expires_at<=? OR requested_at<=?) AND (lease_until IS NULL OR lease_until<=?) ORDER BY expires_at LIMIT ${batch}`,[date(now),date(now-7*DAY),date(now)]);
     for (const row of expiredRevocations) {
       const removed=await db.transaction(async tx=>{
         const current=(await tx.query('SELECT * FROM taswiqat_youtube_revocations WHERE id=? FOR UPDATE',[row.id]))[0];
@@ -572,7 +574,7 @@ export async function runYouTubeMaintenance(db,env={},services={}) {
       });
       if (removed) counts.revocationExpired++;else counts.skipped++;
     }
-    const retained=await db.query("SELECT * FROM taswiqat_youtube_tokens WHERE verified_at<=? AND (token_cipher<>'' OR channel_id<>'') AND (lease_until IS NULL OR lease_until<=?) ORDER BY verified_at LIMIT ?",[date(now-30*DAY),date(now),batch]);
+    const retained=await db.query(`SELECT * FROM taswiqat_youtube_tokens WHERE verified_at<=? AND (token_cipher<>'' OR channel_id<>'') AND (lease_until IS NULL OR lease_until<=?) ORDER BY verified_at LIMIT ${batch}`,[date(now-30*DAY),date(now)]);
     for (const row of retained) {
       const owner=randomUUID();if (!await claimToken(db,row,owner,now)) {counts.skipped++;continue;}
       const saved=await maintenanceSave(db,row,owner,async(tx,current)=>{
@@ -584,7 +586,7 @@ export async function runYouTubeMaintenance(db,env={},services={}) {
     }
     if (counts.disabled) return counts;
     const revocationBudget=batch-expiredRevocations.length;
-    const revocations=revocationBudget>0 ? await db.query('SELECT * FROM taswiqat_youtube_revocations WHERE next_attempt_at<=? AND expires_at>? AND requested_at>? AND (lease_until IS NULL OR lease_until<=?) ORDER BY next_attempt_at LIMIT ?',[date(now),date(now),date(now-7*DAY),date(now),revocationBudget]) : [];
+    const revocations=revocationBudget>0 ? await db.query(`SELECT * FROM taswiqat_youtube_revocations WHERE next_attempt_at<=? AND expires_at>? AND requested_at>? AND (lease_until IS NULL OR lease_until<=?) ORDER BY next_attempt_at LIMIT ${revocationBudget}`,[date(now),date(now),date(now-7*DAY),date(now)]) : [];
     for (const row of revocations) {
       const owner=randomUUID();
       const claim=await db.query('UPDATE taswiqat_youtube_revocations SET lease_owner=?,lease_until=? WHERE id=? AND (lease_until IS NULL OR lease_until<=?)',[owner,date(now+LEASE_TTL),row.id,date(now)]);
@@ -600,7 +602,7 @@ export async function runYouTubeMaintenance(db,env={},services={}) {
       }
     }
     const tokenBudget=batch-retained.length;
-    const rows=tokenBudget>0 ? await db.query('SELECT * FROM taswiqat_youtube_tokens WHERE next_check_at<=? AND (lease_until IS NULL OR lease_until<=?) ORDER BY next_check_at LIMIT ?',[date(now),date(now),tokenBudget]) : [];
+    const rows=tokenBudget>0 ? await db.query(`SELECT * FROM taswiqat_youtube_tokens WHERE next_check_at<=? AND (lease_until IS NULL OR lease_until<=?) ORDER BY next_check_at LIMIT ${tokenBudget}`,[date(now),date(now)]) : [];
     for (const row of rows) {
       const owner=randomUUID();if (!await claimToken(db,row,owner,now)) {counts.skipped++;continue;}
       counts.checked++;

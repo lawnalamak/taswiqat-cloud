@@ -6,6 +6,7 @@ import { once } from 'node:events';
 import { randomBytes } from 'node:crypto';
 import { SignJWT } from 'jose';
 import { ApiError, digest } from '../backend/validation.mjs';
+import { mountChannelMaintenance } from '../backend/channel-maintenance.mjs';
 import { csrfToken, authMiddleware, mountAuthRoutes, SESSION_COOKIE } from '../backend/auth.mjs';
 import { YOUTUBE_TABLE_NAMES, YOUTUBE_DEFINITIONS } from '../backend/youtube-schema.mjs';
 import { POLICY_VERSION,YOUTUBE_SCOPE,YOUTUBE_STATE_COOKIE,mountYouTubeRoutes,youtubeCapabilities,runYouTubeMaintenance,youtubeConfiguration,youtubeReadiness,encryptYouTubeEnvelope,decryptYouTubeEnvelope,validateYouTubeToken,verifiedYouTubeChannel } from '../backend/youtube.mjs';
@@ -24,6 +25,12 @@ for (const user of ['u1','u2','employee']) {
 const sessionCookie=(user='u1',label='one')=>`${SESSION_COOKIE}=${sessionTokens[user][label]}`;
 const rawChannel=(id=channelId)=>({id,snippet:{title:'قناة اختبار محلية',thumbnails:{medium:{url:'https://yt3.ggpht.com/offline-image'}}}});
 const rawToken=(extra={})=>({access_token:'OFFLINE_ACCESS_TOKEN',refresh_token:'OFFLINE_REFRESH_TOKEN',token_type:'Bearer',expires_in:3600,scope:YOUTUBE_SCOPE,...extra});
+function sqlLimit(sql) {
+  const match=sql.match(/\bLIMIT ([1-9]\d*)$/);
+  assert.ok(match,'maintenance LIMIT must be a numeric SQL literal, not a bound argument');
+  const limit=Number(match[1]);assert.ok(Number.isInteger(limit) && limit<=100);
+  return limit;
+}
 function memoryDb() {
   let state={schema:4,tables:[...YOUTUBE_TABLE_NAMES],users:['u1','u2','employee'].map(id=>({id,open_id:'offline:'+id,session_version:0,role:'user',status:'active'})),workspaces:[{id:'w1',status:'active',state_json:{selected:['yt']},members:{u1:'owner',u2:'manager',employee:'employee'},subscription:{status:'active'},plan:{active:true,channels:2}},{id:'w2',status:'active',state_json:{selected:[]},members:{u1:'owner',u2:'manager'},subscription:{status:'active'},plan:{active:true,channels:2}}],connections:[],tokens:[],attempts:[],revocations:[],sessionRevocations:[]};
   const statements=[];let queue=Promise.resolve(),locks=0;
@@ -53,7 +60,7 @@ function memoryDb() {
       if(sql.includes('state_hash=?')) rows=rows.filter(t=>t.state_hash===a[0]);
       else if(sql.includes('workspace_id=?')) rows=rows.filter(t=>t.workspace_id===a[0]);
       else if(sql.includes('WHERE id=?')) rows=rows.filter(t=>t.id===a[0]);
-      else if(sql.includes('expires_at<=?')) rows=rows.filter(t=>t.expires_at<=a[0]).slice(0,a[1]);
+      else if(sql.includes('expires_at<=?')) rows=rows.filter(t=>t.expires_at<=a[0]).slice(0,sqlLimit(sql));
       return structuredClone(rows);
     }
     if (sql.startsWith('INSERT INTO taswiqat_youtube_attempts')) {
@@ -73,7 +80,7 @@ function memoryDb() {
     }
     if(select && sql.includes('taswiqat_youtube_tokens')) {
       const retention=sql.includes('WHERE verified_at<=?');
-      const rows=sql.includes('workspace_id=?')?state.tokens.filter(t=>t.workspace_id===a[0]):state.tokens.filter(t=>(retention?t.verified_at<=a[0] && (t.token_cipher!=='' || t.channel_id!==''):t.next_check_at<=a[0]) && (!t.lease_until || t.lease_until<=a[1])).sort((a,b)=>retention?a.verified_at-b.verified_at:a.next_check_at-b.next_check_at).slice(0,a[2]);
+      const rows=sql.includes('workspace_id=?')?state.tokens.filter(t=>t.workspace_id===a[0]):state.tokens.filter(t=>(retention?t.verified_at<=a[0] && (t.token_cipher!=='' || t.channel_id!==''):t.next_check_at<=a[0]) && (!t.lease_until || t.lease_until<=a[1])).sort((a,b)=>retention?a.verified_at-b.verified_at:a.next_check_at-b.next_check_at).slice(0,sqlLimit(sql));
       return structuredClone(rows);
     }
     if(sql.startsWith('INSERT INTO taswiqat_youtube_tokens')) {
@@ -108,8 +115,8 @@ function memoryDb() {
       let rows;
       if (sql.includes('workspace_id=?')) rows=state.revocations.filter(t=>t.workspace_id===a[0] && t.expires_at>a[1]).slice(0,1);
       else if (sql.includes('WHERE id=?')) rows=state.revocations.filter(t=>t.id===a[0]);
-      else if (sql.includes('WHERE (expires_at<=?')) rows=state.revocations.filter(t=>(t.expires_at<=a[0] || t.requested_at<=a[1]) && (!t.lease_until || t.lease_until<=a[2])).sort((a,b)=>a.expires_at-b.expires_at).slice(0,a[3]);
-      else rows=state.revocations.filter(t=>t.next_attempt_at<=a[0] && t.expires_at>a[1] && t.requested_at>a[2] && (!t.lease_until || t.lease_until<=a[3])).slice(0,a[4]);
+      else if (sql.includes('WHERE (expires_at<=?')) rows=state.revocations.filter(t=>(t.expires_at<=a[0] || t.requested_at<=a[1]) && (!t.lease_until || t.lease_until<=a[2])).sort((a,b)=>a.expires_at-b.expires_at).slice(0,sqlLimit(sql));
+      else rows=state.revocations.filter(t=>t.next_attempt_at<=a[0] && t.expires_at>a[1] && t.requested_at>a[2] && (!t.lease_until || t.lease_until<=a[3])).slice(0,sqlLimit(sql));
       return structuredClone(rows);
     }
     if(sql.startsWith('INSERT INTO taswiqat_youtube_revocations')) {state.revocations.push({id:a[0],workspace_id:a[1],token_cipher:a[2],requested_at:a[3],expires_at:a[4],next_attempt_at:a[5],attempts:0,lease_owner:null,lease_until:null});return {affectedRows:1};}
@@ -509,4 +516,69 @@ for (const change of ['version','lease_owner']) test(`disabled retention cannot 
   const c=await runYouTubeMaintenance(db,{...env,TASWIQAT_YOUTUBE_MODE:'disabled'},{fetcher:p.fetcher,now:()=>now});
   assert.equal(c.disabled,true);assert.equal(c.metadataPurged,0);assert.equal(c.skipped,1);assert.equal(c.failed,0);
   assert.equal(db.state.tokens[0].token_cipher,old.token_cipher);assert.equal(db.state.tokens[0].channel_id,channelId);assert.equal(db.state.connections[0].status,'connected');assert.equal(p.calls.length,calls);
+});
+
+const maintenanceQueries=db=>db.statements.filter(s=>s.sql.startsWith('SELECT') && /ORDER BY .* LIMIT /.test(s.sql));
+const batchCases=[['one',1,1],['five',5,5],['hundred',100,100],['zero',0,1],['negative',-8,1],['over maximum',101,100],['huge integer',Number.MAX_VALUE,100],['NaN',NaN,25],['fraction',5.5,25],['numeric string','5',25],['SQL-shaped string','5; DELETE FROM taswiqat_youtube_tokens',25],['infinity',Infinity,25],['undefined',undefined,25],['null',null,25],['boolean',true,25],['object',{},25],['array',[5],25]];
+for (const [label,batchSize,expected] of batchCases) test(`maintenance SQL LIMIT preserves integer-only normalization for ${label}`,async()=>{
+  const db=memoryDb(),p=provider(db),now=Date.now();
+  const counts=await runYouTubeMaintenance(db,env,{batchSize,now:()=>now,fetcher:p.fetcher});
+  assert.equal(counts.disabled,false);assert.equal(counts.failed,0);assert.equal(p.calls.length,0);
+  const queries=maintenanceQueries(db);assert.equal(queries.length,5);
+  assert.deepEqual(queries.map(s=>sqlLimit(s.sql)),Array(5).fill(expected));
+  assert.deepEqual(queries.map(s=>s.args.length),[1,3,2,4,2]);
+  const at=new Date(now),weekAgo=new Date(now-7*DAY),monthAgo=new Date(now-30*DAY);
+  assert.deepEqual(queries.map(s=>s.args),[[at],[at,weekAgo,at],[monthAgo,at],[at,at,weekAgo,at],[at,at]]);
+  for (const s of queries) assert.equal((s.sql.match(/\?/g)||[]).length,s.args.length);
+  assert.ok(db.statements.every(s=>s.sql.startsWith('SELECT')));
+});
+
+test('empty disabled maintenance returns failed zero, reads only and never calls the provider',async()=>{
+  const db=memoryDb(),p=provider(db);
+  const counts=await runYouTubeMaintenance(db,{}, {batchSize:5,fetcher:p.fetcher});
+  assert.equal(counts.disabled,true);assert.equal(counts.failed,0);assert.equal(p.calls.length,0);
+  assert.ok(Object.entries(counts).filter(([key])=>key!=='disabled').every(([,value])=>value===0));
+  assert.deepEqual(maintenanceQueries(db).map(s=>sqlLimit(s.sql)),[5,5,5]);
+  assert.ok(db.statements.every(s=>s.sql.startsWith('SELECT')));
+});
+
+for (const [label,batch,expired,retained,limits] of [['remaining',5,2,1,[5,5,5,3,4]],['exhausted',1,1,1,[1,1,1]]]) test(`maintenance embeds only positive ${label} budgets after local cleanup`,async()=>{
+  const db=memoryDb(),p=provider(db),now=Date.now();
+  for(let i=0;i<expired;i++) db.state.revocations.push({id:'expired-'+i,workspace_id:'w1',token_cipher:'OFFLINE_UNDECRYPTABLE',requested_at:new Date(now-8*DAY),expires_at:new Date(now-1),next_attempt_at:new Date(now-1),lease_until:null});
+  for(let i=0;i<retained;i++) {
+    const workspace_id='retained-'+i,connection_id='connection-'+i;
+    db.state.tokens.push({workspace_id,connection_id,user_id:'u1',channel_id:channelId,token_cipher:'OFFLINE_UNDECRYPTABLE',verified_at:new Date(now-31*DAY),next_check_at:new Date(now+DAY),token_version:1,retry_count:0,lease_owner:null,lease_until:null});
+    db.state.connections.push({id:connection_id,workspace_id,provider:'yt',status:'connected',public_json:{}});
+  }
+  const counts=await runYouTubeMaintenance(db,env,{batchSize:batch,now:()=>now,fetcher:p.fetcher});
+  assert.equal(counts.disabled,false);assert.equal(counts.failed,0);assert.equal(counts.revocationExpired,expired);assert.equal(counts.metadataPurged,retained);assert.equal(p.calls.length,0);
+  const queries=maintenanceQueries(db);assert.deepEqual(queries.map(s=>sqlLimit(s.sql)),limits);
+  for (const s of queries) assert.equal((s.sql.match(/\?/g)||[]).length,s.args.length);
+  assert.ok(!db.statements.some(s=>/LIMIT (?:\?|0)\b/.test(s.sql)));
+});
+
+test('registered disabled empty-engine callback returns 200 without advancing last_success_at',async()=>{
+  const db=memoryDb(),p=provider(db),query=db.query.bind(db),previous=new Date('2026-11-01T00:00:00Z');let lastSuccess=previous;
+  db.query=async(sql,args=[])=>{
+    if (!sql.includes('taswiqat_channel_maintenance')) return query(sql,args);
+    db.statements.push({sql,args});
+    if (sql.startsWith('SELECT')) return [{task_uid:'offline-task',last_success_at:lastSuccess}];
+    assert.ok(sql.startsWith('UPDATE'));
+    if (sql.includes('last_success_at=CASE') && args[2]===true) lastSuccess=new Date();
+    return {affectedRows:1};
+  };
+  const app=express();app.use(cookieParser());app.use(express.json());
+  const wrap=fn=>(req,res,next)=>Promise.resolve(fn(req,res,next)).catch(next);
+  mountChannelMaintenance(app,db,{...env,TASWIQAT_YOUTUBE_MODE:'disabled'},wrap,runYouTubeMaintenance,{identity:async()=>({taskUid:'offline-task',projectId:env.MANUS_PROJECT_ID,openId:'cron_offline'}),youtube:{batchSize:5,fetcher:p.fetcher}});
+  app.use((e,req,res,next)=>res.status(e.status||500).json({error:{code:e.code||'failed'}}));
+  const ticket=await new SignJWT({appId:env.MANUS_PROJECT_ID,openId:'cron_offline'}).setProtectedHeader({alg:'HS256'}).setExpirationTime('5m').sign(new TextEncoder().encode(env.MANUS_JWT_SECRET));
+  const server=app.listen(0,'127.0.0.1');await once(server,'listening');
+  try {
+    const response=await fetch(`http://127.0.0.1:${server.address().port}/api/scheduled/youtube-maintenance`,{method:'POST',headers:{Cookie:`app_session_id=${ticket}`,'Content-Type':'application/json'},body:JSON.stringify({workspaceId:'ignored'})});
+    assert.equal(response.status,200);const data=await response.json();assert.equal(data.ok,true);assert.equal(data.disabled,true);assert.equal(data.failed,0);assert.equal(p.calls.length,0);
+    const update=db.statements.find(s=>s.sql.includes('last_success_at=CASE'));assert.ok(update);
+    assert.equal(update.args[0],'disabled');assert.equal(update.args[2],false);assert.match(update.sql,/ELSE last_success_at END/);assert.equal(lastSuccess,previous);
+    assert.deepEqual(maintenanceQueries(db).map(s=>sqlLimit(s.sql)),[5,5,5]);
+    assert.ok(db.statements.filter(s=>!s.sql.startsWith('SELECT')).every(s=>s.sql.startsWith('UPDATE taswiqat_channel_maintenance')));
+  } finally {await new Promise(resolve=>server.close(resolve));}
 });
