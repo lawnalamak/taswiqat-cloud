@@ -1,0 +1,24 @@
+{
+  "routes": [
+    { "path": "/", "title": "تسويقات — كل قنواتك في مكان واحد" },
+    { "path": "/#domains", "title": "لكل نشاط في السوق العربي" },
+    { "path": "/#services", "title": "قدرات تسويقات" },
+    { "path": "/#features", "title": "طريقة العمل" },
+    { "path": "/#pricing", "title": "الباقات" },
+    { "path": "/#faq", "title": "الأسئلة الشائعة" },
+    { "path": "/#app/overview", "title": "نظرة عامة" },
+    { "path": "/#app/channels", "title": "مركز القنوات" },
+    { "path": "/#app/content", "title": "مكتبة المحتوى" },
+    { "path": "/#app/compose", "title": "إنشاء منشور" },
+    { "path": "/#app/calendar", "title": "تقويم النشر" },
+    { "path": "/#app/campaigns", "title": "الحملات" },
+    { "path": "/#app/analytics", "title": "النتائج والتقارير" },
+    { "path": "/#app/inbox", "title": "صندوق التواصل" },
+    { "path": "/#app/team", "title": "الفريق" },
+    { "path": "/#app/settings", "title": "ملف النشاط" },
+    { "path": "/#employee/overview", "title": "مساحة الموظف" },
+    { "path": "/#employee/content", "title": "مسودات الموظف" },
+    { "path": "/#employee/compose", "title": "إعداد محتوى" },
+    { "path": "/#employee/calendar", "title": "خطة المحتوى" }
+  ]
+}
