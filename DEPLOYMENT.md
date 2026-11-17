@@ -13,3 +13,11 @@
 ## فحص الإصلاح الفعلي — 17 نوفمبر 2026، 10:06 UTC
 
 الخادم المصحح جاهز/schemaVersion2. بعد تحميل admin.js الجديد في المتصفح، أكد ناقل adminRequest وجود X-Taswiqat-Origin؛ PUT snapshot بالقيم نفسها نجح ورفع revision من2 إلى3. طلب بلاCSRF رفض403 ومصدر متصفح مزوّر رفض403. بقي userCount1/workspaceCount0 والقيم العامة/الإعدادات دون تغيير. آخر اختبارات الإدارة والمصادقة المتأثرة18/18 ناجحة. مستوى الوصول المقروء من إعداد المنصة هو owner/privateFirstPublish؛ لا ادعاء فتح عام. نشر الإصلاح ورفع المصدر إلى GitHub Pages هما الخطوتان التاليتان.
+
+## الإصدار المصحح والتحقق في الإنتاج — 10:17 UTC
+
+نتيجة النشر النهائية published، version869108eeeb05a7d2f7b6b6e75df5315b2f8f84f3، على https://taswiqat-ayt7ghj3.manus.space. GitHub main f1d1d5dc4f448fd99d1644c5a373a35c56a74876 يحمل النظام الكامل؛ Pages build=built لهذا commit، وملفات الربط والإدارة الحية HTTP200. ملفات التكامل القديم ومخططه وملف البيئة لم تتغير. ملاحظة التنسيق: https://github.com/lawnalamak/taswiqat-cloud/pull/1#issuecomment-6945059497 .
+
+بعد تفويض بوابة الوصول الخاصة ثم OAuth التطبيق نفسه بالهوية المعتمدة، callback عاد إلى admin.html. القراءة من المتصفح على الدومين المنشور: health200/session authenticated=true role=admin/admin GET200. حفظ snapshot دون تغيير القيم عبر adminRequest المنشور نجح ورفع revision4 إلى5؛ transportFixed=true/userCount1/workspaceCount0/unchangedSite=true. لا أسرار أو رموز جلسة في هذا السجل، ولا عملاء اختبار.
+
+مستوى الوصول owner/private باقٍ؛ اختيار Public في بطاقة النشر بيد المالك ولا يتطلب إعادة نشر. لا تحصيل ولا تكامل اجتماعي ولا worker نشر ولا دعوة بريدية مفعّلة. تحديث أدلة المستندات بعد869108e لا يغير ملفات التطبيق المنشور.
