@@ -1,7 +1,9 @@
 import { pathToFileURL } from 'node:url';
 import { createDatabase } from './db.mjs';
-export const SCHEMA_VERSION = 3;
-export const TABLES = ['migrations','revision','private_admin','users','workspaces','memberships','invitations','plans','subscriptions','site_settings','tickets','audit','connections','media','oauth_nonces','revocations','auth_identities','auth_credentials','auth_tokens'].map(x => `taswiqat_${x}`);
+import { YOUTUBE_TABLE_NAMES, YOUTUBE_DEFINITIONS } from './youtube-schema.mjs';
+import { MAINTENANCE_TABLE, MAINTENANCE_DEFINITION } from './channel-maintenance.mjs';
+export const SCHEMA_VERSION = 4;
+export const TABLES = [...['migrations','revision','private_admin','users','workspaces','memberships','invitations','plans','subscriptions','site_settings','tickets','audit','connections','media','oauth_nonces','revocations','auth_identities','auth_credentials','auth_tokens'].map(x => `taswiqat_${x}`),...YOUTUBE_TABLE_NAMES,MAINTENANCE_TABLE];
 const suffix = ' ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci';
 const definitions = [
   `CREATE TABLE IF NOT EXISTS taswiqat_revision (id TINYINT PRIMARY KEY, version BIGINT UNSIGNED NOT NULL DEFAULT 0)`,
@@ -60,6 +62,12 @@ export async function migrate(db) {
       for (const ddl of AUTH_DEFINITIONS) await connection.query(ddl + suffix);
       // Do not reseed plans, alter existing identity/pin records or change passwords.
       await connection.query('INSERT IGNORE INTO taswiqat_migrations(version) VALUES(3)');
+    }
+    const [v4] = await connection.query('SELECT version FROM taswiqat_migrations WHERE version=4');
+    if (!v4.length) {
+      for (const ddl of [...YOUTUBE_DEFINITIONS,MAINTENANCE_DEFINITION]) await connection.query(ddl + suffix);
+      // New empty integration tables only; preserve all existing application rows.
+      await connection.query('INSERT IGNORE INTO taswiqat_migrations(version) VALUES(4)');
     }
     console.log(`taswiqat schema ready: v${SCHEMA_VERSION}`);
   } finally { await connection.query("SELECT RELEASE_LOCK('taswiqat_migrations')").catch(()=>{}); connection.release(); }

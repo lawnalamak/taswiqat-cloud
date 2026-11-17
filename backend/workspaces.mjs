@@ -2,6 +2,7 @@ import { newId, json, audit, assertActiveUser } from './db.mjs';
 import { fail, parse, createWorkspaceSchema, statePutSchema, invitationSchema, ticketSchema, validateState, enforceEmployeeState, canonicalPosts, digest, idSchema } from './validation.mjs';
 import { randomBytes } from 'node:crypto';
 import { isDeepStrictEqual } from 'node:util';
+import { publicChannelConnection } from './channel-public.mjs';
 export async function getWorkspace(db,id,userId,{write=false,manage=false}={}) {
   parse(idSchema,id);
   const rows=await db.query('SELECT w.*,m.role AS member_role,m.status AS member_status FROM taswiqat_workspaces w JOIN taswiqat_memberships m ON m.workspace_id=w.id WHERE w.id=? AND m.user_id=?',[id,userId]);
@@ -70,7 +71,7 @@ export function mountWorkspaceRoutes(app,db,wrap) {
       const w=await getWorkspace(tx,req.params.id,req.auth.user.id);
       const state=await canonicalState(tx,w);
       const raw=await tx.query('SELECT id,provider,status,public_json FROM taswiqat_connections WHERE workspace_id=?',[w.id]);
-      const connections=raw.map(r=>({id:r.id,provider:r.provider,status:r.status,details:json(r.public_json)}));
+      const connections=raw.map(r=>publicChannelConnection(r));
       const {subscription,plan}=await limitsFor(tx,w.id);
       return {state,version:Number(w.version),role:w.member_role,workspaceId:w.id,connections,subscription:{id:subscription.id,planId:subscription.plan_id,status:subscription.status,trialEndsAt:subscription.trial_ends_at,manual:true},plan};
     },{mutation:false});
@@ -84,7 +85,9 @@ export function mountWorkspaceRoutes(app,db,wrap) {
       if (Number(w.version)!==input.version) fail(409,'version_conflict','الحالة تغيرت؛ أعد تحميلها قبل الحفظ');
       const previous=await canonicalState(tx,w);
       const {plan}=await limitsFor(tx,w.id,{write:true});
-      if (input.state.selected.length>plan.channels) fail(409,'channel_quota','عدد القنوات يتجاوز الباقة');
+      const connections=await tx.query('SELECT provider FROM taswiqat_connections WHERE workspace_id=?',[w.id]);
+      const channelIds=new Set([...input.state.selected,...connections.map(c=>c.provider)]);
+      if (channelIds.size>plan.channels) fail(409,'channel_quota','عدد القنوات المطلوبة والمسجلة يتجاوز الباقة');
       if (w.member_role==='employee') enforceEmployeeState(previous,input.state,req.auth.user.id);
       else if (!isDeepStrictEqual(input.state.team,previous.team)) fail(403,'team_read_only','الفريق يُدار عبر العضويات والدعوات لا عبر الحالة');
       const members=previous.team.map(m=>m.id);

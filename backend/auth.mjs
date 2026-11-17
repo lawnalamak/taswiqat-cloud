@@ -72,6 +72,12 @@ export function checkCsrf(req, env=process.env) {
   }
   if (!trusted.includes(origin)) fail(403,'origin_mismatch','مصدر الطلب لا يطابق عنوان التطبيق');
 }
+export async function assertCurrentSession(db,auth,env=process.env) {
+  const current={cookies:{[SESSION_COOKIE]:auth?.token}};
+  await new Promise((resolve,reject)=>authMiddleware(db,env)(current,{},error=>error?reject(error):resolve()));
+  if (current.auth.user.id!==auth?.user?.id) fail(401,'invalid_session','هوية جلسة غير مطابقة');
+  return current.auth;
+}
 export function authMiddleware(db,env=process.env) {
   return async(req,res,next)=>{
     try {
@@ -170,8 +176,13 @@ export function mountAuthRoutes(app, db, env, wrap, authenticate) {
   }));
   app.post('/api/auth/logout',authenticate,wrap(async(req,res)=>{
     checkCsrf(req,env);
-    await db.query('INSERT IGNORE INTO taswiqat_revocations(token_hash,expires_at) VALUES(?,?)',[digest(req.auth.token),new Date(req.auth.payload.exp*1000)]);
+    await db.transaction(async tx=>{
+      await tx.query('INSERT IGNORE INTO taswiqat_revocations(token_hash,expires_at) VALUES(?,?)',[digest(req.auth.token),new Date(req.auth.payload.exp*1000)]);
+      const versions=await tx.query('SELECT MAX(version) AS version FROM taswiqat_migrations');
+      if (Number(versions[0]?.version)>=4) await tx.query('DELETE FROM taswiqat_youtube_attempts WHERE user_id=? AND session_hash=?',[req.auth.user.id,digest(req.auth.token)]);
+    });
     res.clearCookie(SESSION_COOKIE,cookieOptions(req.auth.payload.origin,env));
+    res.clearCookie('taswiqat_youtube_state',{httpOnly:true,secure:true,sameSite:'lax',path:'/api/oauth/google'});
     res.json({ok:true});
   }));
 }

@@ -1,0 +1,24 @@
+.youtube-card { scroll-margin-top: 90px; }
+.youtube-card:focus-visible { outline: 3px solid #442ad9; outline-offset: 5px; }
+.youtube-card .channel-logo img { object-fit: contain; }
+.youtube-state { margin: 14px 0; }
+.youtube-state p, .youtube-unavailable { font-size: 13px; line-height: 1.8; }
+.youtube-identity { display: flex; align-items: center; gap: 12px; margin: 14px 0; min-width: 0; }
+.youtube-identity img { border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+.youtube-identity div { display: flex; flex-direction: column; min-width: 0; }
+.youtube-identity strong { overflow-wrap: anywhere; }
+.youtube-identity a { font-size: 11px; direction: ltr; text-align: start; overflow-wrap: anywhere; }
+.youtube-connect-button { width: 100%; margin-top: 8px; }
+.youtube-scope { font-size: 12px; font-weight: 600; line-height: 1.8; margin-top: 14px; }
+.youtube-consent { font-size: 11px; line-height: 1.9; color: var(--muted); }
+.youtube-consent a { text-decoration: underline; text-underline-offset: 3px; }
+.youtube-secondary { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 15px; }
+.youtube-candidates { border: 1px solid var(--border); border-radius: 14px; padding: 14px; margin-top: 14px; }
+.youtube-candidates h4 { font-size: 14px; line-height: 1.7; }
+.youtube-candidates p { font-size: 12px; }
+.youtube-candidate { border-bottom: 1px solid var(--border); padding-bottom: 14px; margin-bottom: 14px; }
+.youtube-unavailable { background: var(--soft, #f2efff); color: var(--text); padding: 10px 12px; border-radius: 10px; }
+@media (max-width: 600px) {
+  .youtube-secondary .btn { width: 100%; white-space: normal; }
+  .youtube-candidates .btn { width: 100%; white-space: normal; }
+}

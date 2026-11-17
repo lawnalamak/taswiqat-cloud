@@ -322,8 +322,18 @@ let adminSiteDirty = false;
 let adminSiteSnapshot = null;
 let adminSaving = false;
 let adminToastTimer;
+let adminIntegrationState = null;
+let adminIntegrationLoading = false;
+let adminIntegrationError = "";
+let adminIntegrationEpoch = 0;
 const adminFilters = {};
 
+function resetAdminIntegrations() {
+  adminIntegrationEpoch++;
+  adminIntegrationState = null;
+  adminIntegrationLoading = false;
+  adminIntegrationError = "";
+}
 function adminEscape(value) {
   return String(value == null ? "" : value).replace(
     /[&<>"']/g,
@@ -1094,8 +1104,42 @@ function renderAdminPlans() {
     `<div class="notice info">الباقات والأسعار والحدود مقترحة وليست عرض دفع. تشغيل الباقة أو إيقاف عرضها يؤثر في المعاينة المحلية للموقع فقط؛ لا يُحدّث اشتراكات أو حصص العملاء.</div><div class="admin-plan-grid">${adminState.plans.map((plan) => `<section class="card admin-plan-card"><div class="between"><div class="eyebrow">باقة مقترحة</div><span class="badge ${plan.enabled ? "purple" : "red"}">${plan.enabled ? "مفعّلة للعرض المحلي" : "موقوفة للعرض المحلي"}</span></div><h2>${adminEscape(plan.name)}</h2><div class="admin-plan-price"><strong>${adminNumber(plan.price)}</strong><small>ر.س / شهر مقترح</small></div><p class="muted"><small>لا فوترة أو تحصيل فعلي</small></p><div class="admin-plan-limits"><div>${adminNumber(plan.channels)} قناة مقترحة</div><div>${adminNumber(plan.members)} عضو مقترح</div><small class="muted">حدود وصفية غير مفروضة على النظام</small></div><button class="btn secondary" type="button" onclick="openAdminRecord('plans','${plan.id}')">تعديل الباقة المقترحة</button></section>`).join("")}</div><a class="btn ghost" href="index.html">عرض الموقع في المتصفح نفسه وتحديث الصفحة ←</a>`;
 }
 function renderAdminConnections() {
+  if (adminMode === "server") {
+    renderAdminServerConnections();
+    return;
+  }
   document.getElementById("adminView").innerHTML =
     `<div class="notice info">الجرد وصفي فقط. لا نجري فحص اتصال، ولا نستنتج حسابًا مربوطًا من التخزين المحلي أو من الرجوع بعد تفويض. حالة الحساب الفعلية تحتاج تحققًا موثّقًا من تكامل القناة.</div><div class="channel-grid">${ADMIN_CHANNELS.map((channel) => `<section class="card channel-card"><div class="row"><span class="channel-logo ${channel.id}" aria-hidden="true">${channel.short}</span><div><h3>${channel.name}</h3><small class="muted">قناة مستهدفة / للقراءة فقط</small></div></div><p>${channel.description}</p><span class="badge gold">حالة الحساب تحتاج تحقق التكامل</span></section>`).join("")}</div>`;
+}
+async function loadAdminIntegrations() {
+  if (adminMode !== "server" || !adminReady || adminIntegrationLoading) return;
+  const actor = adminSession?.user?.id;
+  if (!actor) return;
+  const epoch = adminIntegrationEpoch;
+  adminIntegrationLoading = true; adminIntegrationError = "";
+  try {
+    const value = await adminRequest("/api/admin/integrations");
+    if (adminMode !== "server" || adminSession?.user?.id !== actor || epoch !== adminIntegrationEpoch) return;
+    adminAssert(value?.youtube && typeof value.youtube.ready === "boolean", "استجابة جاهزية التكامل غير مكتملة.");
+    adminIntegrationState = value;
+  } catch (error) {
+    if (adminMode !== "server" || adminSession?.user?.id !== actor || epoch !== adminIntegrationEpoch) return;
+    adminIntegrationError = error.message;
+  } finally {
+    if (epoch === adminIntegrationEpoch) {
+      adminIntegrationLoading = false;
+      if (adminMode === "server" && adminReady && adminView === "connections") renderAdminServerConnections();
+    }
+  }
+}
+function renderAdminServerConnections() {
+  const y = adminIntegrationState?.youtube;
+  const job = adminIntegrationState?.maintenance;
+  const labels = {connected:"متصلة للقراءة فقط",needs_reauth:"يلزم تجديد الإذن",requires_reauth:"يلزم تجديد الإذن",disconnected:"مفصولة",revoked:"الإذن مسحوب",pending:"بانتظار التحقق"};
+  const rows = adminState.connections || [];
+  const intro = `<section class="card"><div class="between"><div><h2>تطبيق يوتيوب في تسويقات</h2><p>إعداد مركزي للمنصة، وليس مفاتيح يقدّمها كل تاجر. الربط للقراءة فقط؛ لا نشر أو حذف فيديوهات.</p></div><button class="btn small" onclick="loadAdminIntegrations()" ${adminIntegrationLoading ? "disabled" : ""}>تحديث الجاهزية</button></div><div role="status" aria-live="polite">${adminIntegrationError ? `<p class="form-error">${adminEscape(adminIntegrationError)}</p>` : y ? `<p><span class="badge ${y.ready ? "green" : "gold"}">${y.ready ? "إعدادات الربط متاحة وفق وضع التشغيل" : "الربط غير مفعّل"}</span> · ${adminEscape(({disabled:"موقوف",testing:"اختبار محدود",production:"إنتاج"})[y.mode] || "موقوف")}</p><p>${y.ready ? "هذه الجاهزية لا تثبت تفويض حساب عميل أو اعتماد كل صلاحية." : "يلزم إعداد تطبيق قوقل والأسرار والدومين واعتمادات الخدمة قبل تمكين العملاء."}</p><p>بريد الدعم العام: ${adminIntegrationState.supportContactConfigured ? "محدد في إعدادات الموقع" : "غير محدد — افتح محتوى الموقع لتعيينه"}</p><p>الصيانة: ${job?.registered ? `مسجلة · ${adminEscape(job.status || "بانتظار أول تشغيل")}${job.lastSuccessAt ? ` · آخر نجاح ${adminTime(job.lastSuccessAt)}` : " · لا يوجد نجاح تشغيل موثّق بعد"}` : "غير مسجلة بعد"}</p>` : "جارٍ تحميل جاهزية التكامل من الخادم…"}</div><div class="quick-actions"><a class="btn small ghost" href="#site">إعداد بريد الدعم العام</a><a class="btn small ghost" href="/privacy.html" target="_blank" rel="noopener">الخصوصية</a><a class="btn small ghost" href="/data-deletion.html" target="_blank" rel="noopener">الحذف وسحب الإذن</a></div></section>`;
+  document.getElementById("adminView").innerHTML = intro + `<section class="card" style="margin-top:20px"><h2>اتصالات أنشطة العملاء</h2><p>من نفس قاعدة بيانات تسويقات، للقراءة فقط؛ رموز المنصات لا تظهر هنا.</p>${rows.length ? `<div class="table-wrap"><table><thead><tr><th>النشاط</th><th>القناة</th><th>الحالة</th><th>آخر تحقق</th></tr></thead><tbody>${rows.map(row => `<tr><td>${adminEscape(adminWorkspaceName(row.workspaceId))}</td><td>${adminEscape(row.details?.title || ADMIN_CHANNELS.find(c=>c.id===row.provider)?.name || row.provider)}</td><td>${adminEscape(labels[row.status] || row.status)}</td><td>${row.details?.verifiedAt ? adminTime(row.details.verifiedAt) : "—"}</td></tr>`).join("")}</tbody></table></div>` : adminEmpty("لا اتصالات مسجلة", "لن يظهر عميل متصل إلا بعد تفويضه والتحقق من قناته على الخادم.", "", "↔")}</section>`;
+  if (!adminIntegrationState && !adminIntegrationLoading && !adminIntegrationError) void loadAdminIntegrations();
 }
 function renderAdminOperations() {
   if (adminMode === "server") {
@@ -2087,6 +2131,7 @@ function lockAdminWorkspace(message) {
   adminReady = false;
   adminMode = "locked";
   adminSession = null;
+  resetAdminIntegrations();
   closeAdminDialog(true);
   adminState = freshAdminState();
   adminSnapshot = null;
@@ -2100,6 +2145,7 @@ async function bootstrapAdminSession() {
   if (forwardAdminToDeployment()) return;
   adminAuthBusy = true;
   adminReady = false;
+  resetAdminIntegrations();
   adminMode = "locked";
   adminState = freshAdminState();
   adminSnapshot = null;
@@ -2216,6 +2262,7 @@ async function startAdminDemo() {
     )
   )
     return;
+  resetAdminIntegrations();
   adminSession = null;
   adminMode = "demo";
   adminStorageBlocked = false;
@@ -2261,7 +2308,7 @@ const ADMIN_SERVER_DESCRIPTIONS = {
   plans:
     "تعديل الباقات والأسعار المقترحة وحدود القنوات والأعضاء التي يفرضها الخادم. لا عملية دفع أو تفعيل تكامل أو تعديل تحصيل سابق.",
   connections:
-    "جرد القنوات المستهدفة للقراءة. لا نحول بيانات الجرد إلى إثبات اتصال أو صلاحيات نشر.",
+    "جاهزية تطبيق المنصة واتصالات الأنشطة المتحققة من الخادم. يوتيوب للقراءة فقط، ولا صلاحيات نشر أو رموز ظاهرة هنا.",
   operations:
     "النشر والطابور بانتظار تكامل التنفيذ. لا تنفيذ تجريبي ولا نجاح مفترض.",
   tickets:

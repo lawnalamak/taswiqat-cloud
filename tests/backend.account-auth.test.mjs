@@ -251,12 +251,16 @@ test('all email POSTs require challenge; JSON/form bodies are bounded and unconf
   });
   await withApp(db,async base=>{const c=await challenge(base);assert.equal(c.options.google,false);const r=await fetch(base+'/api/auth/google/start?origin='+origin);assert.equal(r.status,503);},{},{...env,TASWIQAT_GOOGLE_CLIENT_SECRET:undefined});
 });
-test('v3 migration is additive/idempotent and prices are default-only, never reseed existing rows or pin',async()=>{
-  assert.equal(SCHEMA_VERSION,3);assert.deepEqual(DEFAULT_PLANS.map(p=>p.price),[49,99,199]);assert.ok(TABLES.includes('taswiqat_auth_tokens'));assert.match(AUTH_DEFINITIONS[0],/VARBINARY\(255\)/);
+test('v4 migration is additive/idempotent and prices are default-only, never reseed existing rows or pin',async()=>{
+  assert.equal(SCHEMA_VERSION,4);assert.deepEqual(DEFAULT_PLANS.map(p=>p.price),[49,99,199]);assert.ok(TABLES.includes('taswiqat_auth_tokens'));assert.match(AUTH_DEFINITIONS[0],/VARBINARY\(255\)/);
   const versions=new Set([1,2]),columns=new Set(),sqls=[];
-  const connection={query:async(sql,args)=>{sqls.push(sql);if(sql.includes('GET_LOCK'))return [[{acquired:1}]];if(sql.startsWith('SELECT version'))return [versions.has(Number(sql.match(/version=(\d+)/)[1]))?[{version:3}]:[]];if(sql.startsWith('ALTER TABLE'))columns.add('session_version');if(sql.includes('INSERT IGNORE INTO taswiqat_migrations(version) VALUES(3)'))versions.add(3);return [{}];},execute:async()=>[columns.has('session_version')?[{COLUMN_NAME:'session_version'}]:[]],release:()=>{}};
+  const connection={query:async(sql,args)=>{sqls.push(sql);if(sql.includes('GET_LOCK'))return [[{acquired:1}]];if(sql.startsWith('SELECT version'))return [versions.has(Number(sql.match(/version=(\d+)/)[1]))?[{version:Number(sql.match(/version=(\d+)/)[1])}]:[]];if(sql.startsWith('ALTER TABLE'))columns.add('session_version');const inserted=sql.match(/INSERT IGNORE INTO taswiqat_migrations\(version\) VALUES\((\d+)\)/);if(inserted)versions.add(Number(inserted[1]));return [{}];},execute:async()=>[columns.has('session_version')?[{COLUMN_NAME:'session_version'}]:[]],release:()=>{}};
   const db={pool:{getConnection:async()=>connection}};await migrate(db);await migrate(db);
   assert.equal(sqls.filter(s=>s.startsWith('ALTER TABLE')).length,1);assert.equal(sqls.filter(s=>s.includes('CREATE TABLE IF NOT EXISTS taswiqat_auth_')).length,3);
+  assert.deepEqual([...versions],[1,2,3,4]);
+  for(const table of ['taswiqat_youtube_tokens','taswiqat_youtube_attempts','taswiqat_youtube_revocations','taswiqat_channel_maintenance']) {
+    assert.ok(TABLES.includes(table));assert.equal(sqls.filter(s=>s.startsWith('CREATE TABLE IF NOT EXISTS '+table+' ')).length,1);
+  }
   assert.ok(!sqls.some(s=>s.includes('taswiqat_plans') || /UPDATE taswiqat_(users|private_admin)/.test(s)));
 });
 

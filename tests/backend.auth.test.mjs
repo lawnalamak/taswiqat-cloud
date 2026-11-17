@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { SignJWT } from 'jose';
-import { verifySessionToken, csrfToken, checkCsrf, validateOrigin, cookieOptions, authMiddleware, requireAdmin } from '../backend/auth.mjs';
+import { verifySessionToken, csrfToken, checkCsrf, validateOrigin, cookieOptions, authMiddleware, requireAdmin, assertCurrentSession } from '../backend/auth.mjs';
 const env={MANUS_JWT_SECRET:'offline-test-fixture-key-never-production',MANUS_PROJECT_ID:'offline-test-app'};
 const encoder=new TextEncoder();
 async function token(payload={},key=env.MANUS_JWT_SECRET,header={alg:'HS256'}) {
@@ -74,4 +74,14 @@ test('loopback Preview Origin rewrite requires session HMAC and exact signed HTT
   headers.Origin='http://127.0.0.1:3000';headers['X-CSRF-Token']='forged';assert.throws(()=>checkCsrf(req,env),e=>e.code==='csrf_invalid');
   headers['X-CSRF-Token']=csrfToken('preview',env);req.auth.payload={};assert.doesNotThrow(()=>checkCsrf(req,{...env,TASWIQAT_PUBLIC_ORIGINS:'https://preview.example'}));
   headers['X-Taswiqat-Origin']='https://attacker.example';assert.throws(()=>checkCsrf(req,{...env,TASWIQAT_PUBLIC_ORIGINS:'https://preview.example'}),e=>e.code==='origin_mismatch');
+});
+test('current-session revalidation rejects logout, changed session version and substituted identity',async()=>{
+  const jwt=await token();let revoked=false;
+  const user={id:'current-user',open_id:'offline-openid',role:'user',status:'active',session_version:0};
+  const db={query:async sql=>sql.includes('taswiqat_revocations')?(revoked?[{token_hash:'offline'}]:[]):sql.includes('taswiqat_users')?[user]:[]};
+  const auth={token:jwt,user:{...user}};
+  assert.equal((await assertCurrentSession(db,auth,env)).user.id,'current-user');
+  revoked=true;await assert.rejects(assertCurrentSession(db,auth,env),e=>e.code==='invalid_session');
+  revoked=false;user.session_version=1;await assert.rejects(assertCurrentSession(db,auth,env),e=>e.code==='invalid_session');
+  user.session_version=0;await assert.rejects(assertCurrentSession(db,{...auth,user:{id:'other-user'}},env),e=>e.code==='invalid_session');
 });

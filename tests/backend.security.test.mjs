@@ -58,3 +58,23 @@ test('admin allowlist changes require explicit CLI change and never pin from the
   assert.ok(queries.some(q=>q.sql.includes('pinned_open_id=NULL')));
   assert.ok(!queries.some(q=>/SET\s+role\s*=\s*'admin'/i.test(q.sql)));
 });
+test('workspace PUT enforces the union of planned and registered channels without double counting',async()=>{
+  const db=fixtureDb();const original=db.query;let updates=0;
+  db.query=async(sql,args)=>{
+    if(sql.includes('FROM taswiqat_memberships m JOIN taswiqat_users'))return [];
+    if(sql.includes('FROM taswiqat_subscriptions'))return [{status:'active',plan_json:{channels:2,members:1}}];
+    if(sql.includes('SELECT provider FROM taswiqat_connections'))return [{provider:'yt'}];
+    if(sql.startsWith('UPDATE taswiqat_workspaces')){updates++;return {affectedRows:1};}
+    if(sql.startsWith('INSERT INTO taswiqat_audit'))return {affectedRows:1};
+    return original(sql,args);
+  };
+  const signed=await jwt();const headers={Cookie:`webdev_app_session=${signed}`,'Content-Type':'application/json','X-CSRF-Token':csrfToken(signed,env)};
+  await withServer(db,async base=>{
+    const input=state();input.selected=['ig','tt'];
+    const tooMany=await fetch(base+'/api/workspaces/fixture-workspace/state',{method:'PUT',headers,body:JSON.stringify({state:input,version:3})});
+    assert.equal(tooMany.status,409);assert.equal((await tooMany.json()).error.code,'channel_quota');assert.equal(updates,0);
+    input.selected=['yt','ig'];
+    const allowed=await fetch(base+'/api/workspaces/fixture-workspace/state',{method:'PUT',headers,body:JSON.stringify({state:input,version:3})});
+    assert.equal(allowed.status,200);assert.equal(updates,1);
+  });
+});

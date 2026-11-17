@@ -3,6 +3,7 @@ import { json, audit, newId, assertActiveUser } from './db.mjs';
 import { parse, fail, idSchema, siteSchema, planSchema, emailSchema } from './validation.mjs';
 import { createWorkspace } from './workspaces.mjs';
 import { isDeepStrictEqual } from 'node:util';
+import { publicChannelConnection } from './channel-public.mjs';
 const str=n=>z.string().max(n);
 const iso=z.string().datetime({offset:true}).optional();
 const common={id:idSchema,createdAt:iso,updatedAt:iso};
@@ -40,7 +41,7 @@ export async function adminSnapshot(db,version) {
   const rawTickets=await db.query('SELECT * FROM taswiqat_tickets ORDER BY created_at,id');
   const tickets=rawTickets.map(t=>{const meta=json(t.admin_json || '{}');return {id:t.id,workspaceId:t.workspace_id,userId:t.user_id,title:t.subject,description:t.message,priority:meta.priority || 'normal',assignee:meta.assignee || '',status:t.status,createdAt:timestamp(t.created_at),updatedAt:timestamp(t.updated_at)};});
   const rawConnections=await db.query('SELECT id,workspace_id,provider,status,public_json FROM taswiqat_connections ORDER BY id');
-  const connections=rawConnections.map(c=>({id:c.id,workspaceId:c.workspace_id,provider:c.provider,status:c.status,details:json(c.public_json)}));
+  const connections=rawConnections.map(c=>publicChannelConnection(c,{workspace:true}));
   // Planned content is a local plan, not a dispatch job or claimed successful publication.
   const operations=rawWorkspaces.flatMap(w=>json(w.state_json).posts.filter(p=>p.status==='planned').map(p=>({id:`${w.id}_${p.id}`,workspaceId:w.id,postId:p.id,title:p.title,status:'planned',scheduledFor:p.scheduledFor,published:false,dispatchEnabled:false})));
   const rawAudit=await db.query('SELECT a.*,u.name AS actor_name FROM taswiqat_audit a LEFT JOIN taswiqat_users u ON u.id=a.actor_id ORDER BY a.id DESC LIMIT 1000');

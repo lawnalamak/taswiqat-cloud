@@ -1,6 +1,7 @@
 import { readFile, writeFile, mkdir, cp } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { buildLegalPages } from "./legal-pages.mjs";
 
 const root = path.dirname(fileURLToPath(import.meta.url));
 const landing = await readFile(
@@ -22,6 +23,7 @@ const html = `<!DOCTYPE html>
   <link rel="stylesheet" href="assets/pulse.css">
   <link rel="stylesheet" href="assets/session.css">
   <link rel="stylesheet" href="assets/auth-portal.css">
+  <link rel="stylesheet" href="assets/youtube-connect.css">
 </head>
 <body>
 ${landing}
@@ -29,6 +31,7 @@ ${app}
   <script src="assets/deployment.js"></script>
   <script src="assets/client-api.js"></script>
   <script src="assets/auth-portal.js"></script>
+  <script src="assets/youtube-connect.js"></script>
   <script src="assets/app.js"></script>
   <script src="assets/site-settings.js"></script>
 </body>
@@ -45,4 +48,5 @@ await cp(
   path.join(root, "dist/manus-routes.json"),
 );
 await cp(path.join(root, "admin.html"), path.join(root, "dist/admin.html"));
+await buildLegalPages(path.join(root, "dist"), root);
 console.log("Taswiqat customer and operator interfaces assembled: index.html and dist/");

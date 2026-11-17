@@ -3,7 +3,7 @@ import cookieParser from 'cookie-parser';
 import { pathToFileURL, fileURLToPath } from 'node:url';
 import path from 'node:path';
 import { createDatabase, publicUser } from './db.mjs';
-import { ApiError, fail, CHANNEL_IDS } from './validation.mjs';
+import { ApiError, fail, CHANNEL_IDS, parse, idSchema, emailSchema } from './validation.mjs';
 import { authMiddleware, csrfToken, checkCsrf, requireAdmin, mountAuthRoutes, authOrigin } from './auth.mjs';
 import { mountEmailAuthRoutes } from './auth-email.mjs';
 import { mountProviderAuthRoutes } from './auth-provider.mjs';
@@ -11,6 +11,8 @@ import { mountWorkspaceRoutes } from './workspaces.mjs';
 import { mountStorageRoutes } from './storage.mjs';
 import { mountAdminRoutes, publicSettings } from './admin.mjs';
 import { SCHEMA_VERSION, TABLES } from './migrate.mjs';
+import { mountYouTubeRoutes, youtubeCapabilities, youtubeReadiness, runYouTubeMaintenance } from './youtube.mjs';
+import { mountChannelMaintenance, MAINTENANCE_NAME, MAINTENANCE_TABLE } from './channel-maintenance.mjs';
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 export const wrap = fn => (req,res,next) => Promise.resolve(fn(req,res,next)).catch(next);
 export async function readiness(db) {
@@ -39,7 +41,7 @@ function rateLimiter({limit=120,windowMs=60000,maxEntries=10000}={}) {
     next();
   };
 }
-export function createApp({db=createDatabase(),env=process.env,distDir=path.join(root,'dist'),authServices={}}={}) {
+export function createApp({db=createDatabase(),env=process.env,distDir=path.join(root,'dist'),authServices={},channelServices={}}={}) {
   const app=express();
   app.locals.db=db;
   app.disable('x-powered-by');
@@ -54,6 +56,7 @@ export function createApp({db=createDatabase(),env=process.env,distDir=path.join
   app.use('/api',rateLimiter());
   app.use('/api/auth',express.json({limit:'8kb',strict:true,type:'application/json'}));
   app.use('/api/auth/apple/callback',express.urlencoded({limit:'12kb',extended:false,parameterLimit:10,type:'application/x-www-form-urlencoded'}));
+  app.use('/api/oauth',express.json({limit:'8kb',strict:true,type:'application/json'}));
   app.use(express.json({limit:'16mb',strict:true,type:'application/json'}));
   app.get('/api/health',wrap(async(req,res)=>{const health=await readiness(db);res.status(health.ready?200:503).json(health);}));
   const authenticate=authMiddleware(db,env);
@@ -74,10 +77,13 @@ export function createApp({db=createDatabase(),env=process.env,distDir=path.join
     res.set('Cache-Control','public, max-age=30');
     res.json(await publicSettings(db));
   }));
-  // Exact provider paths remain reserved; mount the integration router here in a later reviewed change.
+  mountYouTubeRoutes(app,db,env,wrap,authenticate,channelServices.youtube || {});
+  const maintenanceServices=channelServices.maintenance || {};
+  mountChannelMaintenance(app,db,env,wrap,runYouTubeMaintenance,{...maintenanceServices,youtube:{batchSize:5,...(maintenanceServices.youtube || {})}});
+  // Providers not yet implemented still fail closed rather than fabricate an authorization URL.
   app.use('/api/oauth',(req,res)=>res.status(503).json({error:{code:'integration_not_configured',message:'تكامل منصات التواصل غير مهيأ بعد'}}));
   app.use('/api',(req,res,next)=>{
-    const known=/^\/(workspaces(?:\/[^/]+\/(?:state|team|invitations|tickets|media))?|invitations\/accept|publisher\/capabilities|admin\/state)$/.test(req.path);
+    const known=/^\/(workspaces(?:\/[^/]+\/(?:state|team|invitations|tickets|media))?|invitations\/accept|publisher\/capabilities|admin\/(?:state|integrations))$/.test(req.path);
     if (!known) return res.status(404).json({error:{code:'api_not_found',message:'مسار API غير موجود'}});
     next();
   });
@@ -87,8 +93,20 @@ export function createApp({db=createDatabase(),env=process.env,distDir=path.join
   }));
   mountWorkspaceRoutes(app,db,wrap);
   mountStorageRoutes(app,db,env,wrap);
-  app.get('/api/publisher/capabilities',(req,res)=>res.json({enabled:false,publishing:false,scheduling:false,channels:CHANNEL_IDS.map(id=>({id,connected:false,publish:false,schedule:false}))}));
+  app.get('/api/publisher/capabilities',wrap(async(req,res)=>{
+    const youtube=req.query.workspaceId === undefined ? null : await youtubeCapabilities(db,req.auth.user,parse(idSchema,req.query.workspaceId),env);
+    res.json({enabled:false,publishing:false,scheduling:false,channels:CHANNEL_IDS.map(id=>({id,connected:id==='yt' && youtube?.read===true,read:id==='yt' && youtube?.read===true,publish:false,schedule:false})),youtube});
+  }));
   app.use('/api/admin',requireAdmin);
+  app.get('/api/admin/integrations',wrap(async(req,res)=>{
+    const youtube=youtubeReadiness(env),health=await readiness(db);
+    const {site}=await publicSettings(db);
+    const supportContactConfigured=emailSchema.safeParse(site?.contactEmail).success;
+    if (youtube.ready && !health.schema) {youtube.ready=false;youtube.reason='schema_not_ready';}
+    if (youtube.ready && youtube.mode==='production' && !supportContactConfigured) {youtube.ready=false;youtube.reason='public_support_not_configured';}
+    const row=health.schema ? (await db.query(`SELECT last_attempt_at,last_success_at,last_status FROM ${MAINTENANCE_TABLE} WHERE name=?`,[MAINTENANCE_NAME]))[0] : null;
+    res.json({youtube,supportContactConfigured,maintenance:{registered:!!row,status:row?.last_status || null,lastAttemptAt:row?.last_attempt_at || null,lastSuccessAt:row?.last_success_at || null}});
+  }));
   mountAdminRoutes(app,db,wrap);
   app.use('/api',(req,res)=>res.status(404).json({error:{code:'api_not_found',message:'مسار API غير موجود'}}));
   app.get('/manus-routes.json',(req,res,next)=>res.sendFile(path.join(root,'manus-routes.json'),e=>e?next(e):undefined));
@@ -100,6 +118,10 @@ export function createApp({db=createDatabase(),env=process.env,distDir=path.join
   app.use((req,res)=>res.status(404).json({error:{code:'not_found',message:'الصفحة غير موجودة'}}));
   app.use((error,req,res,next)=>{
     if (res.headersSent) return next(error);
+    if (req.path==='/api/oauth/google/callback') {
+      res.set('Referrer-Policy','no-referrer');
+      return res.redirect(303,`${youtubeReadiness(env).origin}/?youtube=failed#app`);
+    }
     if (req.path==='/api/auth/apple/callback') {
       let origin='';try{origin=authOrigin(env);}catch{/* Fixed relative fallback, never Host. */}
       res.set('Referrer-Policy','no-referrer');

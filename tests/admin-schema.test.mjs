@@ -360,3 +360,18 @@ test('invalid system settings and stale forms never write or discard unsaved inp
   assert.equal(h.run('adminSiteDirty'), true);
   assert.equal(h.run('adminSiteSnapshot'), 7);
 });
+
+test('live channel inventory uses canonical connections and escapes identity, not descriptive demo cards',async()=>{
+  const h=await harness();const state=populated(h.base);
+  state.connections=[{id:'c1',workspaceId:ids.workspace,provider:'yt',status:'connected',details:{title:'<script>channel</script>',verifiedAt:'2026-11-17T00:00:00.000Z'}}];
+  h.load(state);h.run('adminIntegrationState={youtube:{ready:false,mode:"disabled"},supportContactConfigured:false,maintenance:{registered:false}}; renderAdminConnections()');
+  const html=h.node('adminView').innerHTML;
+  assert.match(html,/&lt;script&gt;channel&lt;\/script&gt;/);assert.match(html,/متصلة للقراءة فقط/);assert.match(html,/غير مسجلة بعد/);assert.doesNotMatch(html,/<script>channel/);
+});
+test('late integration readiness from a previous admin epoch cannot overwrite a new session or spinner',async()=>{
+  const h=await harness();h.load();h.run('adminSession={user:{id:"same-operator"}}; adminView="overview"; globalThis.oldReply=null; adminRequest=()=>new Promise(resolve=>{globalThis.oldReply=resolve});');
+  const old=h.run('loadAdminIntegrations()');
+  h.run('resetAdminIntegrations(); adminMode="server";adminReady=true;adminSession={user:{id:"same-operator"}}; adminIntegrationLoading=true;oldReply({youtube:{ready:true,mode:"production"}});');
+  await old;
+  assert.equal(h.run('adminIntegrationState'),null);assert.equal(h.run('adminIntegrationLoading'),true);
+});

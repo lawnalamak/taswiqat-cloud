@@ -162,6 +162,7 @@ let requestedView = "overview";
 let setupAfterLogin = false;
 let bootPromise;
 let currentView = "overview";
+let youtubeReturnIntent = null;
 let contentFilter = "all";
 let channelFilter = "all";
 let calendarOffset = 0;
@@ -335,6 +336,7 @@ function clearPrivateState() {
   workspaceVersion = null;
   workspaceLoaded = false;
   connections = [];
+  window.TaswiqatYouTube?.reset();
   capabilities = {};
   subscription = null;
   workspacePlan = null;
@@ -636,9 +638,15 @@ async function ensureWorkspace() {
   if (bootPromise) await bootPromise;
   if (sessionStatus === "loading") { showSessionPanel(); return false; }
   if (!sessionInfo?.authenticated || sessionStatus === "error" || pendingInvite()) { showSessionPanel(); return false; }
-  if (workspaceLoaded) return true;
   const memberships = activeWorkspaces();
-  const preferred = memberships.find((w) => String(w.id) === String(sessionInfo.workspaceId)) || memberships[0];
+  const returnScope = youtubeReturnIntent?.workspaceId;
+  if (returnScope && !memberships.some(w => String(w.id) === returnScope)) {
+    youtubeReturnIntent = null;
+    showSessionPanel("لا توجد عضوية متاحة في النشاط الذي بدأ ربط القناة. لم نفتح نشاطًا آخر بدلًا منه.");
+    return false;
+  }
+  if (workspaceLoaded && (!returnScope || workspaceId === returnScope)) return true;
+  const preferred = memberships.find((w) => String(w.id) === String(returnScope || sessionInfo.workspaceId)) || memberships[0];
   if (!preferred) { showSessionPanel(); return false; }
   return loadWorkspace(preferred.id);
 }
@@ -875,7 +883,7 @@ function renderChannels() {
   return (
     pageTitle(
       "قنواتك، تحت سقف واحد",
-      "اختر منصات جمهورك، ثم اربط حساباتك عند تجهيز التكامل.",
+      "اختر منصات جمهورك للتخطيط، واربط القنوات التي يتيحها الخادم لنشاطك.",
     ) +
     `<div class="notice info">اختيار القناة ليس ربطًا للحساب. نعرض الاتصال فقط حين يعيده الخادم موثّقًا؛ غياب إمكانات الربط يعطّل الزر ولا يفعّل نشرًا أو مزامنة.</div><div class="filters">${[
       ["all", "كل القنوات"],
@@ -890,7 +898,7 @@ function renderChannels() {
       .join(
         "",
       )}<button class="btn small" style="margin-right:auto" onclick="connectGoogle()" ${canConnect("google") ? "" : 'disabled title="تكامل الربط غير جاهز"'}>مسار ربط قوقل الموحد ←</button></div>
-  <div class="channel-grid">${rows.map((c) => `<div class="card channel-card"><div class="between"><div class="row">${logo(c)}<div><h3>${c.name}</h3><small class="muted">${c.group === "google" ? "منتجات قوقل" : "منصات التواصل"}</small></div></div></div><p>${c.description}</p><div class="between" style="margin-bottom:16px"><span class="badge ${connectionFor(c.id) ? "green" : ""}">${connectionFor(c.id) ? "اتصال موثّق من الخادم" : "لا يوجد اتصال موثّق"}</span>${state.selected.includes(c.id) ? '<span class="badge gold">مختارة للتخطيط</span>' : ""}</div><div class="row" style="flex-wrap:wrap"><button class="btn ${state.selected.includes(c.id) ? "" : "primary"}" onclick="selectChannel('${c.id}')">${state.selected.includes(c.id) ? "إلغاء الاختيار" : "اختيار القناة"}</button><button class="btn ghost" onclick="connectChannel('${c.id}')" ${canConnect(c.id) ? "" : 'disabled title="تكامل الربط غير جاهز"'}>${canConnect(c.id) ? "الربط ←" : "الربط غير جاهز"}</button></div></div>`).join("")}</div><p class="help-card">يوتيوب وسناب وواتساب تظهر في تخطيط المحتوى، لكن النشر عليها يتطلب صلاحيات وتكاملات مختلفة. Analytics وAds وSearch Console أدوات تحليل وإعلانات ولا تظهر كقنوات منشورات.</p>`
+  <div class="channel-grid">${rows.map((c) => c.id === "yt" && window.TaswiqatYouTube ? window.TaswiqatYouTube.renderCard(state.selected.includes("yt")) : `<div class="card channel-card"><div class="between"><div class="row">${logo(c)}<div><h3>${c.name}</h3><small class="muted">${c.group === "google" ? "منتجات قوقل" : "منصات التواصل"}</small></div></div></div><p>${c.description}</p><div class="between" style="margin-bottom:16px"><span class="badge ${connectionFor(c.id) ? "green" : ""}">${connectionFor(c.id) ? "اتصال موثّق من الخادم" : "لا يوجد اتصال موثّق"}</span>${state.selected.includes(c.id) ? '<span class="badge gold">مختارة للتخطيط</span>' : ""}</div><div class="row" style="flex-wrap:wrap"><button class="btn ${state.selected.includes(c.id) ? "" : "primary"}" onclick="selectChannel('${c.id}')">${state.selected.includes(c.id) ? "إلغاء الاختيار" : "اختيار القناة"}</button><button class="btn ghost" onclick="connectChannel('${c.id}')" ${canConnect(c.id) ? "" : 'disabled title="تكامل الربط غير جاهز"'}>${canConnect(c.id) ? "الربط ←" : "الربط غير جاهز"}</button></div></div>`).join("")}</div><p class="help-card">يوتيوب وسناب وواتساب تظهر في تخطيط المحتوى، لكن النشر عليها يتطلب صلاحيات وتكاملات مختلفة. Analytics وAds وSearch Console أدوات تحليل وإعلانات ولا تظهر كقنوات منشورات.</p>`
   );
 }
 async function selectChannel(value) {
@@ -913,6 +921,7 @@ function connectGoogle() {
   showConnection("منتجات قوقل", "/api/oauth/google/connect?scope=unified");
 }
 function connectChannel(value) {
+  if (value === "yt") return window.TaswiqatYouTube?.connect();
   const c = channel(value);
   if (c) showConnection(c.name, c.url);
 }
@@ -1527,6 +1536,7 @@ function renderInbox() {
     pageTitle(
       "صندوق التواصل",
       "مكان واحد للرسائل والتعليقات والتقييمات التي تسمح القنوات بجلبها.",
+      mode === "live" ? '<button class="btn primary" onclick="newTicket()">طلب دعم أو حذف بيانات</button>' : "",
     ) +
     `<div class="card">${emptyBlock("لا توجد محادثات متزامنة", "صندوق التواصل ينتظر التكامل الفعلي. لا توجد رسائل عملاء أو ردود تلقائية في هذه المعاينة.", `<button class="btn secondary" onclick="navigate('channels')">اختيار القنوات</button>`)}</div><p class="help-card">معلومات نشاطك ومنتجاته وخدماته تساعد على تجهيز ردود مناسبة لأي مجال. المنيو أداة تخص المطاعم، وليس أساس تجربة تسويقات للجميع.</p>`
   );
@@ -1694,7 +1704,7 @@ async function routeTo(hash) {
   }
   const parts = hash.match(/^#(app|employee|demo)(?:\/([a-z]+))?$/);
   if (parts) {
-    const view = parts[2] || "overview";
+    const view = youtubeReturnIntent ? "channels" : parts[2] || "overview";
     requestedView = view === "setup" ? "overview" : view;
     if (parts[1] === "demo") {
       if (mode === "demo") showApp(view, true);
@@ -1704,7 +1714,16 @@ async function routeTo(hash) {
     if (mode === "demo") { mode = "live"; clearPrivateState(); }
     if (forwardRealEntry(view)) return;
     if (view === "setup") { await startSetup(); return; }
-    if (await ensureWorkspace()) showApp(view, true);
+    if (await ensureWorkspace()) {
+      showApp(view, true);
+      if (youtubeReturnIntent) {
+        const outcome = youtubeReturnIntent.outcome;
+        youtubeReturnIntent = null;
+        const messages = {cancelled:"لم يكتمل تفويض يوتيوب. بقي الاتصال السابق كما هو إن كان موجودًا.",missing_channel:"لم نعثر على قناة متاحة للحساب المختار. اختر حسابًا آخر.",failed:"تعذّر إكمال تفويض القناة. لم نفترض نجاح الاتصال.",requires_reauth:"يلزم تجديد إذن الوصول إلى القناة."};
+        if (messages[outcome]) notify(messages[outcome]);
+        void window.TaswiqatYouTube?.refresh().then(() => $("youtubeConnectCard")?.focus({preventScroll:true}));
+      }
+    }
     return;
   }
   if (pendingInvite() && sessionInfo?.authenticated) { showSessionPanel(); return; }
@@ -1725,6 +1744,23 @@ function restoreRoute() {
 }
 function initializeCustomerApp() {
   if (!$("appView") || !$("sessionPanel")) return;
+  window.TaswiqatYouTube?.configure({
+    context: () => ({mode,authenticated:!!sessionInfo?.authenticated,loaded:workspaceLoaded,workspaceId,canManage:isManager(),view:currentView}),
+    render, guardLeave,
+    connectionChanged: (connection, expectedId) => {
+      if (mode !== "live" || workspaceId !== expectedId) return;
+      connections = connections.filter(row => !["yt","youtube"].includes(row.provider));
+      if (connection) connections.push(connection);
+    },
+  });
+  const returnedURL = new URL(location.href);
+  const outcome = returnedURL.searchParams.get("youtube");
+  const returnedWorkspace = returnedURL.searchParams.get("workspace");
+  if (["connected","choose","cancelled","missing_channel","failed","requires_reauth"].includes(outcome) && /^[A-Za-z0-9_-]{1,80}$/.test(returnedWorkspace || "")) {
+    youtubeReturnIntent = {workspaceId:returnedWorkspace,outcome};
+    returnedURL.searchParams.delete("youtube"); returnedURL.searchParams.delete("workspace");
+    history.replaceState(null, "", `${returnedURL.pathname}${returnedURL.search}#app/channels`);
+  }
   document.querySelectorAll("dialog").forEach((dialog) => {
     dialog.addEventListener("cancel", (event) => { if (saving) event.preventDefault(); });
   });

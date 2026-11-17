@@ -1,6 +1,9 @@
 {
   "routes": [
     { "path": "/", "title": "تسويقات — كل قنواتك في مكان واحد" },
+    { "path": "/privacy.html", "title": "سياسة خصوصية تسويقات" },
+    { "path": "/terms.html", "title": "شروط استخدام تسويقات" },
+    { "path": "/data-deletion.html", "title": "حذف البيانات وسحب إذن القنوات" },
     { "path": "/#domains", "title": "لكل نشاط في السوق العربي" },
     { "path": "/#services", "title": "قدرات تسويقات" },
     { "path": "/#features", "title": "طريقة العمل" },

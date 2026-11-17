@@ -136,5 +136,10 @@
     invite: (workspaceId, invitation) => request(workspacePath(workspaceId, "/invitations"), { method: "POST", body: invitation }),
     acceptInvitation: (token) => request("/api/invitations/accept", { method: "POST", body: { token } }),
     ticket: (workspaceId, subject, message) => request(workspacePath(workspaceId, "/tickets"), { method: "POST", body: { subject, message } }),
+    youtubeStatus: (workspaceId) => request(`/api/oauth/google/status?workspaceId=${encodeURIComponent(workspaceId)}`),
+    youtubeConnect: (workspaceId, policyVersion) => request("/api/oauth/google/connect?service=yt", { method: "POST", body: { workspaceId, policyVersion } }),
+    youtubeConfirm: (workspaceId, value) => request("/api/oauth/google/confirm", { method: "POST", body: { workspaceId, channelId: value.channelId } }),
+    youtubeCancel: (workspaceId) => request("/api/oauth/google/cancel", { method: "POST", body: { workspaceId } }),
+    youtubeDisconnect: (workspaceId) => request("/api/oauth/google/disconnect", { method: "POST", body: { workspaceId } }),
   });
 })();
