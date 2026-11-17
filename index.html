@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>منصة تسويقات السحابية | Taswiqat Cloud</title>
+<style>
+  :root { --primary:#0f766e; --primary-dark:#115e59; --bg:#f1f5f9; --card:#ffffff; --text:#0f172a; --muted:#64748b; --border:#e2e8f0; }
+  * { box-sizing:border-box; font-family:'Segoe UI',Tahoma,Arial,sans-serif; }
+  body { margin:0; background:var(--bg); color:var(--text); }
+  header { background:linear-gradient(135deg,#0f766e,#0d9488); color:#fff; padding:18px 24px; display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:12px; }
+  header h1 { margin:0; font-size:1.4rem; }
+  nav { display:flex; flex-wrap:wrap; gap:8px; }
+  .tab-btn { background:rgba(255,255,255,0.18); color:#fff; border:1px solid rgba(255,255,255,0.3); padding:8px 14px; border-radius:8px; cursor:pointer; font-weight:600; }
+  .tab-btn.active { background:#fff; color:var(--primary); }
+  main { max-width:1100px; margin:24px auto; padding:0 16px; }
+  .portal { display:none; }
+  .portal.active { display:block; }
+  .card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:20px; margin-bottom:20px; box-shadow:0 1px 3px rgba(0,0,0,0.05); }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:16px; }
+  .plan { border:2px solid var(--border); border-radius:12px; padding:18px; text-align:center; background:#fff; }
+  .plan.featured { border-color:var(--primary); background:#f0fdfa; }
+  .price { font-size:1.8rem; font-weight:700; color:var(--primary); margin:10px 0; }
+  label { display:block; margin:10px 0 4px; font-weight:600; font-size:0.9rem; }
+  input,select,textarea { width:100%; padding:10px; border:1px solid var(--border); border-radius:8px; font-size:0.95rem; }
+  button.btn { background:var(--primary); color:#fff; border:none; padding:10px 18px; border-radius:8px; cursor:pointer; font-weight:600; margin-top:12px; }
+  button.btn:hover { background:var(--primary-dark); }
+  button.btn-outline { background:#fff; color:var(--primary); border:1px solid var(--primary); padding:6px 12px; border-radius:6px; cursor:pointer; }
+  .badge { display:inline-block; padding:4px 10px; border-radius:20px; font-size:0.8rem; font-weight:600; }
+  .badge.ok { background:#dcfce7; color:#166534; }
+  .badge.wait { background:#fef9c3; color:#854d0e; }
+  table { width:100%; border-collapse:collapse; margin-top:10px; }
+  th,td { padding:10px; border-bottom:1px solid var(--border); text-align:right; font-size:0.92rem; }
+  .msg { padding:10px; border-radius:8px; background:#dcfce7; color:#166534; margin-top:10px; display:none; }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>منصة تسويقات السحابية</h1>
+    <small>إدارة التسويق والنشر والردود للمتاجر والمطاعم</small>
+  </div>
+  <nav>
+    <button class="tab-btn active" onclick="showPortal('landing',this)">1. الواجهة والتسجيل</button>
+    <button class="tab-btn" onclick="showPortal('merchant',this)">2. لوحة التاجر</button>
+    <button class="tab-btn" onclick="showPortal('employee',this)">3. لوحة الموظف</button>
+    <button class="tab-btn" onclick="showPortal('admin',this)">4. لوحة Super Admin</button>
+  </nav>
+</header>
+
+<main>
+  <!-- البوابة 1: الواجهة التعريفية والتسجيل والباقات -->
+  <section id="landing" class="portal active">
+    <div class="card">
+      <h2>مرحباً بكم في منصة تسويقات</h2>
+      <p>منصة سحابية متكاملة لتمكين المتاجر والمطاعم من إدارة حسابات التواصل الاجتماعي، خرائط قوقل، فرق العمل، والردود على العملاء من مكان واحد.</p>
+    </div>
+    <div class="card">
+      <h3>الباقات الشهرية</h3>
+      <div class="grid">
+        <div class="plan">
+          <h4>الباقة الأساسية</h4>
+          <div class="price">199 ريال<small>/شهر</small></div>
+          <p>ربط منصة واحدة • موظف واحد • تقارير شهرية</p>
+          <button class="btn-outline" onclick="selectPlan('199')">اختيار الباقة</button>
+        </div>
+        <div class="plan featured">
+          <h4>باقة النمو</h4>
+          <div class="price">449 ريال<small>/شهر</small></div>
+          <p>ربط إنستغرام وتيك توك وخرائط قوقل • 3 موظفين • جدولة</p>
+          <button class="btn" onclick="selectPlan('449')">اختيار الباقة</button>
+        </div>
+        <div class="plan">
+          <h4>الباقة المتقدمة</h4>
+          <div class="price">899 ريال<small>/شهر</small></div>
+          <p>جميع المنصات • موظفون غير محدودين • دعم فوري</p>
+          <button class="btn-outline" onclick="selectPlan('899')">اختيار الباقة</button>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>نموذج تسجيل المتاجر والمطاعم</h3>
+      <form onsubmit="registerMerchant(event)">
+        <div class="grid">
+          <div><label>اسم المتجر أو المطعم</label><input id="regName" required placeholder="مثال: مطعم مذاق"></div>
+          <div><label>نوع النشاط</label><select id="regType"><option>مطعم</option><option>متجر إلكتروني</option><option>متجر تجزئة</option></select></div>
+          <div><label>الباقة الشهرية</label><select id="regPlan"><option value="199">الأساسية - 199 ريال</option><option value="449" selected>النمو - 449 ريال</option><option value="899">المتقدمة - 899 ريال</option></select></div>
+          <div><label>رقم الجوال</label><input id="regPhone" required placeholder="05xxxxxxxx"></div>
+        </div>
+        <button class="btn" type="submit">إرسال طلب التسجيل</button>
+        <div id="regMsg" class="msg"></div>
+      </form>
+    </div>
+  </section>
+
+  <!-- البوابة 2: لوحة التاجر الرئيسية -->
+  <section id="merchant" class="portal">
+    <div class="card">
+      <h3>ربط القنوات والمنصات</h3>
+      <div class="grid">
+        <div class="plan">
+          <h4>إنستغرام (Instagram)</h4>
+          <p id="st-ig"><span class="badge wait">غير متصل</span></p>
+          <button class="btn-outline" onclick="toggleConnect('st-ig','إنستغرام')">ربط / تحديث</button>
+        </div>
+        <div class="plan">
+          <h4>تيك توك (TikTok)</h4>
+          <p id="st-tt"><span class="badge wait">غير متصل</span></p>
+          <button class="btn-outline" onclick="toggleConnect('st-tt','تيك توك')">ربط / تحديث</button>
+        </div>
+        <div class="plan">
+          <h4>خرائط قوقل (Google Maps)</h4>
+          <p id="st-gm"><span class="badge ok">متصل</span></p>
+          <button class="btn-outline" onclick="toggleConnect('st-gm','خرائط قوقل')">ربط / تحديث</button>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>إنشاء حسابات الموظفين</h3>
+      <form onsubmit="addEmployee(event)" class="grid">
+        <div><label>اسم الموظف</label><input id="empName" required placeholder="مثال: سارة العتيبي"></div>
+        <div><label>البريد الإلكتروني</label><input id="empEmail" type="email" required placeholder="sara@store.sa"></div>
+        <div><label>الصلاحية</label><select id="empRole"><option>موظف نشر وردود</option><option>مشرف محتوى</option></select></div>
+        <div style="display:flex;align-items:flex-end;"><button class="btn" type="submit">إنشاء حساب الموظف</button></div>
+      </form>
+      <table>
+        <thead><tr><th>الاسم</th><th>البريد</th><th>الصلاحية</th><th>الحالة</th></tr></thead>
+        <tbody id="empTable">
+          <tr><td>أحمد الشمري</td><td>ahmed@taswiqat.sa</td><td>موظف نشر وردود</td><td><span class="badge ok">نشط</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- البوابة 3: لوحة الموظف للنشر والردود -->
+  <section id="employee" class="portal">
+    <div class="card">
+      <h3>نشر محتوى جديد</h3>
+      <form onsubmit="publishPost(event)">
+        <label>نص المنشور</label>
+        <textarea id="postText" rows="3" required placeholder="اكتب عرض المتجر أو المطعم هنا..."></textarea>
+        <label>المنصات المستهدفة</label>
+        <select id="postPlatform">
+          <option>إنستغرام + تيك توك + خرائط قوقل</option>
+          <option>إنستغرام فقط</option>
+          <option>تيك توك فقط</option>
+          <option>خرائط قوقل فقط</option>
+        </select>
+        <button class="btn" type="submit">نشر الآن</button>
+      </form>
+      <ul id="postsList" style="margin-top:14px;"></ul>
+    </div>
+    <div class="card">
+      <h3>صندوق الردود والتعليقات</h3>
+      <table>
+        <thead><tr><th>العميل</th><th>التعليق / الاستفسار</th><th>المنصة</th><th>الرد</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>خالد الحربي</td>
+            <td>هل يتوفر توصيل للمطعم اليوم؟</td>
+            <td>خرائط قوقل</td>
+            <td>
+              <input id="reply1" placeholder="اكتب الرد..." style="width:65%;display:inline-block;">
+              <button class="btn-outline" onclick="sendReply('reply1','res1')">إرسال</button>
+              <div id="res1" style="color:#166534;font-size:0.85rem;"></div>
+            </td>
+          </tr>
+          <tr>
+            <td>نورة الدوسري</td>
+            <td>كم سعر العرض الأسبوعي؟</td>
+            <td>إنستغرام</td>
+            <td>
+              <input id="reply2" placeholder="اكتب الرد..." style="width:65%;display:inline-block;">
+              <button class="btn-outline" onclick="sendReply('reply2','res2')">إرسال</button>
+              <div id="res2" style="color:#166534;font-size:0.85rem;"></div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- البوابة 4: لوحة الشركة المشغلة Super Admin -->
+  <section id="admin" class="portal">
+    <div class="grid">
+      <div class="card"><h4>إجمالي المتاجر والمطاعم</h4><div class="price" id="statStores">2</div></div>
+      <div class="card"><h4>الاشتراكات النشطة</h4><div class="price">2</div></div>
+      <div class="card"><h4>الإيراد الشهري المتوقع</h4><div class="price" id="statRev">1348 ريال</div></div>
+    </div>
+    <div class="card">
+      <h3>إدارة المشتركين (Super Admin)</h3>
+      <table>
+        <thead><tr><th>اسم النشاط</th><th>النوع</th><th>الباقة</th><th>الحالة</th><th>إجراء</th></tr></thead>
+        <tbody id="adminTable">
+          <tr><td>مطعم الروابي</td><td>مطعم</td><td>449 ريال</td><td><span class="badge ok">نشط</span></td><td><button class="btn-outline" onclick="toggleStore(this)">تغيير الحالة</button></td></tr>
+          <tr><td>متجر أطياف</td><td>متجر إلكتروني</td><td>899 ريال</td><td><span class="badge ok">نشط</span></td><td><button class="btn-outline" onclick="toggleStore(this)">تغيير الحالة</button></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<script>
+  function showPortal(id, btn) {
+    document.querySelectorAll('.portal').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    btn.classList.add('active');
+  }
+  function selectPlan(val) {
+    document.getElementById('regPlan').value = val;
+    document.getElementById('regName').focus();
+  }
+  function registerMerchant(e) {
+    e.preventDefault();
+    const name = document.getElementById('regName').value;
+    const type = document.getElementById('regType').value;
+    const plan = document.getElementById('regPlan').value;
+    const msg = document.getElementById('regMsg');
+    msg.style.display = 'block';
+    msg.textContent = 'تم تسجيل "' + name + '" بنجاح في باقة ' + plan + ' ريال شهرياً!';
+    const tr = document.createElement('tr');
+    tr.innerHTML = '<td>' + name + '</td><td>' + type + '</td><td>' + plan + ' ريال</td><td><span class="badge ok">نشط</span></td><td><button class="btn-outline" onclick="toggleStore(this)">تغيير الحالة</button></td>';
+    document.getElementById('adminTable').appendChild(tr);
+    document.getElementById('statStores').textContent = document.getElementById('adminTable').rows.length;
+    e.target.reset();
+  }
+  function toggleConnect(id, label) {
+    const el = document.getElementById(id);
+    const connected = el.textContent.includes('متصل') && !el.textContent.includes('غير');
+    el.innerHTML = connected ? '<span class="badge wait">غير متصل</span>' : '<span class="badge ok">متصل (' + label + ')</span>';
+  }
+  function addEmployee(e) {
+    e.preventDefault();
+    const n = document.getElementById('empName').value;
+    const em = document.getElementById('empEmail').value;
+    const r = document.getElementById('empRole').value;
+    const tr = document.createElement('tr');
+    tr.innerHTML = '<td>' + n + '</td><td>' + em + '</td><td>' + r + '</td><td><span class="badge ok">نشط</span></td>';
+    document.getElementById('empTable').appendChild(tr);
+    e.target.reset();
+  }
+  function publishPost(e) {
+    e.preventDefault();
+    const txt = document.getElementById('postText').value;
+    const plat = document.getElementById('postPlatform').value;
+    const li = document.createElement('li');
+    li.textContent = 'تم النشر على (' + plat + '): ' + txt;
+    document.getElementById('postsList').prepend(li);
+    e.target.reset();
+  }
+  function sendReply(inputId, resId) {
+    const val = document.getElementById(inputId).value.trim();
+    if (!val) return;
+    document.getElementById(resId).textContent = 'تم إرسال الرد: ' + val;
+    document.getElementById(inputId).value = '';
+  }
+  function toggleStore(btn) {
+    const badge = btn.closest('tr').querySelector('.badge');
+    if (badge.textContent === 'نشط') {
+      badge.textContent = 'معلق';
+      badge.className = 'badge wait';
+    } else {
+      badge.textContent = 'نشط';
+      badge.className = 'badge ok';
+    }
+  }
+</script>
+</body>
+</html>
